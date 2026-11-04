@@ -108,6 +108,54 @@ Default voice is `en-US-ChristopherNeural`. Swap with `--voice`, tune with `--ra
    this too, and it reads more naturally.
 6. **Export WAV or high-bitrate MP3.** The pipeline accepts either.
 
+## If the voice is not going to be yours
+
+Wanting a US-neutral narrator is a legitimate production decision, and it does not
+require you to record anything. But the decision that matters here is **not accent, it
+is licensing** — the free route and the paid route use the *same* Microsoft neural
+voices, so what you are buying with money is the right to monetise.
+
+### Audition first, free
+
+```bash
+python3 tools/voice_audition.py --spec specs/video1.json --section hook   # all 17 US voices
+python3 tools/voice_audition.py --gender Male
+```
+
+Identical line, identical rate, one MP3 per voice plus `out/voice/audition/index.html`
+with a player for each. Pick with your ears in two minutes instead of guessing from a
+voice list. Then use that name everywhere.
+
+### Then choose how you pay for it
+
+| Option | Same voices? | Commercial licence | Cost for Video 1 |
+|---|---|---|---|
+| `edge-tts` (`--engine edge`) | Yes | **No grant.** Microsoft has declined to confirm monetised use of Edge Read Aloud output | $0 |
+| **Azure AI Speech** (`--engine azure`) | **Yes — identical voice names** | Yes, included | **~$0.11** (7,624 chars at ~$15/1M) |
+| ElevenLabs / PlayHT | No, different voices | Yes, on paid plans | $5–22/mo entry tiers |
+| Self-hosted open weights (Kokoro-82M, Piper) | No | Yes (Apache-2.0 / MIT) | $0 + your GPU/CPU time |
+
+The useful consequence: **audition on the free endpoint, ship on the licensed one.**
+Because both expose `en-US-AndrewNeural`, the voice you chose by ear survives the
+migration byte-for-byte in character — only the licence and the bill change.
+
+```bash
+export AZURE_SPEECH_KEY=...        # from a Speech resource in the Azure portal
+export AZURE_SPEECH_REGION=eastus
+python3 tools/make_voice.py --spec specs/video1.json --engine azure --voice en-US-AndrewNeural
+```
+
+At this script's length a video costs about eleven cents, so a 4-videos-a-month channel
+costs under fifty cents. The 500K characters/month free tier on a Speech resource covers
+roughly 65 videos of this size, but treat the free tier as evaluation: the pay-as-you-go
+(S0) tier is the unambiguous path, and at these volumes the difference is cents.
+
+**One trade-off when you switch:** the batch Azure REST call returns no word-boundary
+stream, so captions fall back to `silencedetect` estimates rather than exact per-word
+timings (the drift noted under Known limits below). Audio quality and voice are
+unchanged. If frame-exact captions matter more than the licence, keep `--engine edge`
+for private drafts and re-render the publish copy on Azure.
+
 ## Known limits
 
 - **Accent is not removed** in Option 1 — by design.

@@ -12,6 +12,13 @@ It also works on the eight short specs untouched:
   python3 tools/make_voice.py --spec specs/short1.json
   python3 tools/make_voice.py --spec specs/video1.json --voice en-GB-RyanNeural --rate "-4%"
   python3 tools/make_voice.py --spec specs/video1.json --dry-run
+  AZURE_SPEECH_KEY=... AZURE_SPEECH_REGION=eastus \
+    python3 tools/make_voice.py --spec specs/video1.json --engine azure
+
+Engines: `edge` (default) is free but rides Microsoft's unofficial Edge Read Aloud
+endpoint, which carries no commercial-use grant. `azure` speaks the *same* voices
+through the licensed Azure Speech API for about twelve cents per video of this length,
+so the voice you auditioned is the voice you ship, legally.
 
 Spec shape: either a flat script ({"script": "..."} like specs/shortN.json) or a
 long-form section list ({"sections": [{"id", "title", "text", "asset"}]}).
@@ -51,6 +58,45 @@ def short():
         import make_short  # noqa: E402  (deliberate late import)
         _short = make_short
     return _short
+
+
+AZURE_URL = "https://{region}.tts.speech.microsoft.com/cognitiveservices/v1"
+AZURE_FMT = "audio-24khz-48kbitrate-mono-mp3"
+
+
+def synth_azure(text, voice, rate, mp3_path, key, region):
+    """Speak through the licensed Azure Speech endpoint using the same voice names.
+
+    edge-tts and Azure expose the same Microsoft neural voices, so a voice chosen by
+    audition survives the switch. The difference is legal: this endpoint is licensed
+    for monetised use, and a script this size costs about twelve cents. There is no
+    word-boundary stream on the batch REST call, so captions fall back to
+    silence-based estimates instead of exact per-word timings.
+    """
+    import urllib.error
+    import urllib.request
+    from xml.sax.saxutils import escape, quoteattr
+
+    ssml = (f"<speak version='1.0' xml:lang='en-US'>"
+            f"<voice name={quoteattr(voice)}>"
+            f"<prosody rate={quoteattr(rate)}>{escape(text)}</prosody>"
+            f"</voice></speak>")
+    req = urllib.request.Request(AZURE_URL.format(region=region),
+                                 data=ssml.encode("utf-8"), method="POST")
+    req.add_header("Ocp-Apim-Subscription-Key", key)
+    req.add_header("Content-Type", "application/ssml+xml")
+    req.add_header("X-Microsoft-OutputFormat", AZURE_FMT)
+    req.add_header("User-Agent", "nokia-channel-voice")
+    try:
+        with urllib.request.urlopen(req, timeout=120) as resp:
+            audio = resp.read()
+    except urllib.error.HTTPError as e:
+        detail = e.read().decode("utf-8", "replace")[:300]
+        raise SystemExit(f"azure tts {e.code} for {voice}: {detail}")
+    if len(audio) < 512:
+        raise SystemExit(f"azure tts returned no audio for {voice}")
+    with open(mp3_path, "wb") as f:
+        f.write(audio)
 
 
 def slugify(text):
@@ -143,6 +189,8 @@ def main():
     ap.add_argument("--rate", help="override the spec's rate, e.g. -4%%")
     ap.add_argument("--gap", type=float, default=DEFAULT_GAP,
                     help="silence between sections, seconds")
+    ap.add_argument("--engine", default="edge", choices=["edge", "azure"],
+                    help="edge = free unofficial endpoint; azure = licensed, paid, same voices")
     ap.add_argument("--outdir", default="out/voice")
     ap.add_argument("--wpm", type=float, default=150.0,
                     help="words per minute used by --dry-run estimates")
@@ -161,6 +209,13 @@ def main():
 
     voice = a.voice or spec.get("voice") or DEFAULT_VOICE
     rate = a.rate if a.rate is not None else (spec.get("rate") or "+0%")
+    engine = a.engine
+    az_key = os.environ.get("AZURE_SPEECH_KEY", "")
+    az_region = os.environ.get("AZURE_SPEECH_REGION", "")
+    if engine == "azure" and not (az_key and az_region):
+        sys.exit("--engine azure needs AZURE_SPEECH_KEY and AZURE_SPEECH_REGION in the "
+                 "environment, e.g.\n"
+                 "  export AZURE_SPEECH_KEY=...  AZURE_SPEECH_REGION=eastus")
     name = spec.get("name") or os.path.splitext(os.path.basename(a.spec))[0]
     slug = slugify(name)
     total_words = sum(len(s["text"].split()) for s in sections)
@@ -180,11 +235,16 @@ def main():
 
     parts, manifest, offset = [], [], 0.0
     print(name)
-    print(f"  voice {voice} @ {rate} | {len(sections)} sections | {total_words} words")
+    print(f"  voice {voice} @ {rate} | engine {engine} | {len(sections)} sections "
+          f"| {total_words} words")
     for i, s in enumerate(sections, 1):
         stem = f"{i:02d}_{s['id']}"
         mp3 = os.path.join(dest, stem + ".mp3")
-        words = asyncio.run(short().synth(s["text"], voice, rate, mp3))
+        if engine == "azure":
+            synth_azure(s["text"], voice, rate, mp3, az_key, az_region)
+            words = short().timings_from_audio(mp3, s["text"])
+        else:
+            words = asyncio.run(short().synth(s["text"], voice, rate, mp3))
         if not words:
             sys.exit(f"{s['id']}: no word timings produced - check network or input")
         with open(os.path.join(dest, stem + ".words.json"), "w", encoding="utf-8") as f:
@@ -228,8 +288,8 @@ def main():
             f.write(s["text"] + "\n\n")
 
     summary = {"name": name, "spec": a.spec, "voice": voice, "rate": rate,
-               "gap": a.gap, "sections": len(manifest), "words": total_words,
-               "duration": round(total, 3),
+               "engine": engine, "gap": a.gap, "sections": len(manifest),
+               "words": total_words, "duration": round(total, 3),
                "words_per_sec": round(total_words / total, 3) if total else 0,
                "items": manifest}
     with open(os.path.join(dest, "manifest.json"), "w", encoding="utf-8") as f:
@@ -238,7 +298,7 @@ def main():
     print(f"OK  {dest}")
     print(f"    runtime {mmss(total)} ({total:.1f}s) | {total_words} words | "
           f"{len(sections)} sections")
-    print(f"    {total_words / total:.2f} words/sec | voice {voice} @ {rate}")
+    print(f"    {total_words / total:.2f} words/sec | voice {voice} @ {rate} | {engine}")
 
 
 if __name__ == "__main__":

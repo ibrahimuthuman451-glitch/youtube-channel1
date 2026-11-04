@@ -153,6 +153,19 @@ imagery is the most common way a monetised channel gets a claim or a strike.
 
 The generator is deliberately boring about this, because the script is doing the work.
 
+**Not recording your own voice?** That is fine and common — but the real decision is
+licensing, not accent. Audition every US voice for free, then ship on a licensed
+endpoint that serves the *same* voice by name for about eleven cents a video. Full
+reasoning and the decision table are in `docs/recording-voice.md`; the short version:
+
+```bash
+python3 tools/voice_audition.py --spec specs/video1.json --section hook   # pick by ear
+python3 tools/make_voice.py --spec specs/video1.json --voice en-US-AndrewNeural
+
+export AZURE_SPEECH_KEY=...  AZURE_SPEECH_REGION=eastus                   # licensed copy
+python3 tools/make_voice.py --spec specs/video1.json --voice en-US-AndrewNeural --engine azure
+```
+
 ```bash
 # as shipped: authoritative, measured, mid-Atlantic-neutral
 python3 tools/make_voice.py --spec specs/video1.json
