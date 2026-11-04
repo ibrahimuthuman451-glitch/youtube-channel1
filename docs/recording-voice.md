@@ -12,6 +12,24 @@ What this pipeline gives you instead is three real, working options. Pick per vi
 
 ---
 
+## Option 0 — Voiceover on its own, before any picture exists
+
+`tools/make_voice.py` is the audio-only path. `make_short.py` renders sound and picture
+in one pass and refuses to start without a still image, which is why the eight shorts sat
+finished-but-silent. This one needs only the words:
+
+```bash
+python3 tools/make_voice.py --spec specs/video1.json   # 12 sections, SRT, manifest
+python3 tools/make_voice.py --spec specs/short1.json   # or any flat-script spec
+python3 tools/make_voice.py --spec specs/video1.json --dry-run   # word count, no network
+```
+
+It writes one MP3 per section plus a joined `narration.mp3`, a `narration.srt` on the
+joined timeline, and a `manifest.json` with each section's start timecode. Options 1–3
+below still apply when you want *your* voice instead; they are not replaced by this.
+
+---
+
 ## Option 1 — Use your own voice, cleaned up
 
 Keeps **you**. Improves intelligibility, removes room noise, and hits platform loudness.

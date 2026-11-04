@@ -1,0 +1,82 @@
+{
+  "name": "Video 1 - How Nokia Lost Everything",
+  "format": "16:9 long-form",
+  "target_runtime": "9 minutes",
+  "voice": "en-US-ChristopherNeural",
+  "rate": "+0%",
+  "source_doc": "content/video1-how-nokia-lost-everything.md",
+  "sections": [
+    {
+      "id": "hook",
+      "title": "Cold open",
+      "asset": "assets/video1/00_thumb_nokia_fell_fast.jpg",
+      "text": "Here is a company that spent fourteen straight years as the largest phone maker on Earth. And here is the same company, six years later, selling its entire phone business and walking away from it. The reason most people give is that Nokia missed the touchscreen. That is not what happened. Nokia did not lose to a better phone. It lost to a culture that had stopped hearing bad news. And the evidence is in the order things broke."
+    },
+    {
+      "id": "peak",
+      "title": "The peak that sounds fake",
+      "asset": "assets/video1/01_the_peak_nokia_1100_era.jpg",
+      "text": "In 2007, Nokia was not a fading giant. It was the giant. Almost every second smartphone sold on Earth that year was a Nokia. Across all phones, it was nearly four in ten. The company was worth roughly a hundred and fifty billion dollars, and its handsets were in the pockets of people who had never owned a phone before. If you had asked anyone in 2007 which phone company would still be standing twenty years later, Nokia would have been the obvious answer. That is the first thing to hold onto. This was not a company in decline that got unlucky. This was the most successful phone company in history, at the exact moment it was about to stop being one."
+    },
+    {
+      "id": "papermill",
+      "title": "It started as a paper mill",
+      "asset": "assets/video1/02_paper_mill_1865.jpg",
+      "text": "To understand why, you have to go back further than most people expect. Nokia did not start in a garage in California. It started in Finland in 1865, as a paper mill. Over the next century it made rubber boots, cables, and electronics. Then, in the nineteen nineties, it bet everything on mobile phones, back when a phone was still a luxury object bolted into the dashboard of a car. That bet worked. By 1998, Nokia was the largest phone maker in the world. So the company everyone now calls a tech failure was actually a hundred and thirty year old survivor, and it won for longer than most companies even manage to exist. Companies like that do not fall over because of one bad product decision. They fall over because something inside them stops working."
+    },
+    {
+      "id": "iphone",
+      "title": "January 2007",
+      "asset": "assets/video1/03_the_iphone_arrives_2007.jpg",
+      "text": "In January 2007, Steve Jobs walked out on a stage and held up the iPhone. Nokia's engineers, reportedly, were not shocked by the hardware. They had already been prototyping touchscreens themselves. What shocked them was the software. It responded like a computer, not like a phone. It had a real browser, real maps, real scrolling, and it felt like it had been designed for a screen instead of a keypad. Nokia's phones ran Symbian, an operating system built for buttons and tiny screens, in an era when every kilobyte mattered. That was not a design flaw. That was a design optimised, brilliantly, for a world that had just ended."
+    },
+    {
+      "id": "symbian",
+      "title": "The shape of winning",
+      "asset": "assets/video1/04_symbian_fragmentation.jpg",
+      "text": "And that is the trap. When you win for fourteen years, your software accumulates the shape of that success. Symbian carried years of decisions made for cheap hardware: dozens of devices to support, a developer experience that punished anyone who wanted to build something beautiful. Replacing that is not a six month project. It is a three year project, and it has to happen while you are still shipping products, still hitting quarterly numbers, and still being told by almost everyone around you that you are the market leader. So the question inside Nokia was never whether Symbian was a problem. It was whether anyone could afford to say so out loud."
+    },
+    {
+      "id": "platforms",
+      "title": "Three platforms, three abandonments",
+      "asset": "assets/video1/05_mistake_1_divided_company_infighting.jpg",
+      "text": "Inside Nokia, teams were competing against each other instead of against Apple and Google. Different groups pushed different platforms. Symbian. Then Maemo. Then MeeGo. Each one was announced with genuine enthusiasm, each one arrived late, and each one was replaced by the next plan before it had a chance to be finished. Now put yourself in a developer's position. You are asked to build apps for a platform that might not exist in eighteen months. Meanwhile iOS has one operating system, one screen size, and a clear reason to show up. The app gap that people now point to as the cause of the collapse was not a design failure. It was a trust failure. Developers did the arithmetic, and the arithmetic said no."
+    },
+    {
+      "id": "culture",
+      "title": "Why the bad news never arrived",
+      "asset": "assets/video1/06_bad_news_stops_mid_level.jpg",
+      "text": "This is the part the timeline hides. Nokia did not lack information about what was happening. It lacked a route for that information to travel upward. It has been widely reported that managers inside the company were afraid to deliver bad news, that problems were softened on the way up, and that leadership was insulated from how far behind the software had actually fallen. That is not a technology problem. That is a reporting problem, and it is the most expensive kind, because it means every decision above it is made with the wrong numbers. A company can survive a competitor. It struggles to survive a culture where the person who raises the alarm is the person whose career pays for it."
+    },
+    {
+      "id": "memo",
+      "title": "The burning platform",
+      "asset": "assets/video1/07_the_burning_platform_metaphor.jpg",
+      "text": "In 2010, Nokia hired Stephen Elop, a former Microsoft executive, as chief executive, and gave him the job of fixing exactly this. In February 2011, he sent his employees a memo. In it, he compared Nokia to a man standing on a burning oil platform in the North Sea, who has to choose between burning alive and jumping into freezing water. It was honest, and it was brutal, and it did what internal honesty usually does. It leaked. Then Nokia abandoned its own software and partnered with Microsoft's Windows Phone. And here is the part almost every retelling skips. The announcement did damage by itself. Customers who were three months from an upgrade heard the message clearly: the phone you are about to buy is already a dead end. You do not have to guess what happened next. Symbian sales fell off a cliff."
+    },
+    {
+      "id": "sale",
+      "title": "The numbers",
+      "asset": "assets/video1/08_the_end_microsoft_acquisition_lumia.jpg",
+      "text": "By 2012, Samsung had overtaken Nokia as the world's biggest phone maker, ending a fourteen year run at the top. In September 2013, Microsoft agreed to buy Nokia's devices and services business for about five point four billion euros: three point seven nine billion for the devices, and one point six five billion for a licence to the patents. The deal closed in April 2014. Then, in July 2015, Microsoft took a seven point six billion dollar write down on the division, and cut around seven thousand eight hundred jobs from it. Read that number again. Microsoft lost more on Nokia than Nokia made selling it. The most valuable phone company on Earth went for less than the cost of the mistake."
+    },
+    {
+      "id": "survives",
+      "title": "Nokia isn't dead",
+      "asset": "assets/video1/09_payoff_nokia_5g_telecom_infrastructure.jpg",
+      "text": "But the story does not end the way the headline does. Nokia kept the part that actually mattered: network equipment. Today Nokia sells telecom infrastructure to carriers around the world, including the 5G networks your phone runs on. The Nokia name still shows up on handsets too, licensed to another company that builds the phones. So the collapse was really a company quietly walking out of a market it had already lost, in order to keep the one where it still had a moat. Everyone thinks Nokia died. It did not. It sold the part that was already gone."
+    },
+    {
+      "id": "lesson",
+      "title": "The real lesson",
+      "asset": "assets/video1/10_success_is_a_filter.jpg",
+      "text": "So what is the actual lesson? Not do not miss a trend. Everyone knows that one, and it is useless, because trends are obvious in hindsight and ambiguous in the moment. The lesson is that success is a filter. The longer a company is right, the more its processes, its metrics, and its people are selected for confirming that it is still right. Nokia did not fail because it was stupid. It failed because it was right for so long that being right became the culture. Great hardware could not save it, because the problem was never the hardware."
+    },
+    {
+      "id": "close",
+      "title": "Close",
+      "asset": "assets/video1/11_closing_hold.jpg",
+      "text": "Which brings the question home. Somewhere right now, you are winning at something. It pays your bills, it gets you promoted, it is the thing people congratulate you for. And the same thing that makes you good at it is quietly making you deaf to whatever is coming next. Nokia had fourteen years of being right, and that was exactly the runway it needed to build in order to hear bad news early. It is worth asking what your equivalent is, and who in your world is allowed to tell you the truth."
+    }
+  ]
+}
