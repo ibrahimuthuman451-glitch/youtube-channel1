@@ -1,4 +1,6 @@
 .render/
 out/
 assets/
+tts_test/
+nokia_out/
 __pycache__/
