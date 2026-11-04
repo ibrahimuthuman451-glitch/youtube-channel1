@@ -1,0 +1,100 @@
+﻿Video 1: How Nokia Lost Everything — Full Production Pack & Voiceover Script
+Target Duration: 8–9 Minutes
+Asset Folder: How Nokia Lost Everything - Video Assets & Script
+Thumbnail Assets & Canva Links
+* Direct High-Res Image File in Drive: 00_Official_YouTube_Thumbnail_Nokia_Fell_Fast.jpg
+* Editable Canva Design: High-Contrast Thumbnail on Canva (Design ID: DAHZxv4n26Q)
+* Text Overlay: 'NOKIA FELL FAST' (Ultra-bold white and yellow typography, high contrast, mobile optimized)
+1. Title Options
+1. How Nokia Lost Everything (The Real Story)
+2. Why Nokia Failed: The Mistakes That Killed the World's Biggest Phone Company
+3. The Rise and Fall of Nokia
+2. Complete Voiceover Script & Visual Cues
+Hook (0:00 – 0:30) | The Biggest Phone Company on Earth
+* Spoken Script: "In 2007, almost every second smartphone sold in the world was a Nokia. The company was worth well over a hundred billion dollars. Six years later, it sold its entire phone business to Microsoft for a fraction of that. This is how the world's biggest phone maker lost everything, and why it wasn't because of one mistake."
+* Visual Asset: 01_The_Peak_Nokia_1100_Era.jpg
+The Peak (0:30 – 1:45)
+* Spoken Script: "Nokia started in Finland in 1865 as a paper mill. Over the decades it made rubber boots, cables and electronics, and in the 1990s it bet everything on mobile phones. By 1998 it was the world's largest phone maker, and it held that position for more than a decade. Phones like the Nokia 1100 sold hundreds of millions of units. Nokia was so important to Finland that at its height it accounted for a large share of the country's exports. But inside the company, the culture was changing. Success had made it slow."
+* Visual Asset: 01_The_Peak_Nokia_1100_Era.jpg
+The iPhone Arrives (1:45 – 3:00)
+* Spoken Script: "In January 2007, Apple showed the first iPhone. Nokia's engineers weren't shocked by the technology. They had touchscreen prototypes of their own. What shocked them was the experience: the software felt like it belonged on a computer, not a phone. Nokia's phones ran Symbian, an operating system built for buttons and small screens. It was hard for developers to build apps for, and every update was painfully slow. In 2008 Google released Android, and the gap kept growing."
+* Visual Asset: 02_The_iPhone_Arrives_2007.jpg
+Mistake 1: A Divided Company (3:00 – 4:15)
+* Spoken Script: "Inside Nokia, teams were competing instead of cooperating. Different groups pushed different software projects: Symbian, Maemo, then MeeGo. Managers were reportedly afraid of bringing bad news to the top, so leadership didn't hear how serious the problem was. The result: Nokia kept announcing new software plans, then replacing them. Developers stopped trusting that any Nokia platform would last."
+* Visual Asset: 03_Mistake_1_Divided_Company_Infighting.jpg
+Mistake 2: Losing the App Race (4:15 – 5:30)
+* Spoken Script: "Smartphones were becoming platforms, and platforms live or die by apps. Apple and Android attracted developers. Nokia didn't. Without the apps people wanted, customers stopped choosing Nokia, even when the hardware was good."
+* Visual Asset: 04_Mistake_2_Losing_The_App_Race.jpg
+The Burning Platform (5:30 – 6:45)
+* Spoken Script: "In 2010 Nokia hired Stephen Elop, a former Microsoft executive, as CEO. In February 2011 he sent employees a now-famous memo comparing Nokia to a man standing on a burning oil platform who must jump into the cold sea. Nokia then dropped its own software and partnered with Microsoft's Windows Phone. The announcement itself damaged sales, because customers realized Nokia's current phones were a dead end, and sales of Symbian phones fell sharply."
+* Visual Asset: 05_The_Burning_Platform_Metaphor.jpg
+The End of the Phone Business (6:45 – 7:45)
+* Spoken Script: "By 2012, Samsung had overtaken Nokia as the biggest phone maker. In September 2013, Microsoft agreed to buy Nokia's devices and services business for about 5.4 billion euros. The deal closed in 2014. In 2015, Microsoft wrote down billions of dollars and cut thousands of jobs from the division."
+* Visual Asset: 06_The_End_Microsoft_Acquisition_Lumia.jpg
+Payoff & Survival (7:45 – 8:30)
+* Spoken Script: "Nokia didn't disappear. It kept its network equipment business, which now sells infrastructure to telecom companies around the world, and the Nokia brand lives on in phones made by another company under license. The lesson: Nokia didn't fail because it was stupid. It failed because it was successful for so long that it stopped listening to bad news. Great products can't save a company if its culture can't change."
+* Visual Asset: 07_Payoff_Nokia_5G_Telecom_Infrastructure.jpg
+Ending & Teaser (8:30 – 8:45)
+* Spoken Script: "Blockbuster made a similar mistake with Netflix, but with an even bigger chance to win. That's next. Subscribe so you don't miss it."
+* Visual Asset: 08_Next_Video_Teaser_Blockbuster_vs_Netflix.jpg
+3. Pre-Recording Fact-Check Verification
+1. Nokia's 2007 Global Market Share
+* Smartphone Market Share: 49.4% (nearly 1 out of every 2 smartphones sold worldwide).
+   * CNET / Gartner 2007 Smartphone Report
+   * Fierce Network / Gartner Historical Data
+* Total Mobile Handset Market Share: 37.8% (~4 out of every 10 phones).
+   * The Guardian / Gartner 2007 Handset Sales Report
+   * MarkHub24 Market Analysis
+2. Nokia's Peak Market Value
+* Dot-Com Era Peak (2000): $250B – $300B (€222B+), briefly becoming Europe's most valuable company.
+   * CompaniesMarketCap Nokia Historical Capitalization
+   * Voronoi / Visual Capitalist Nokia vs Apple Analysis
+* Pre-Smartphone Peak (Late 2007): ~$150B – $157.2B.
+   * Voronoi / Visual Capitalist Market Cap
+   * CompaniesMarketCap Nokia Valuation
+3. Date Samsung Overtook Nokia
+* Q1 2012 (April 2012): Ending Nokia's 14-year run as the world's #1 mobile phone vendor since 1998.
+   * The Guardian / Strategy Analytics Q1 2012 Report
+   * ChannelsTV / Gartner Mobile Vendor Rankings
+4. Microsoft Deal Terms & 2015 Write-Down
+* Transaction Details: Agreed September 3, 2013 (closed April 25, 2014) for €5.44 billion ($7.2 billion total: €3.79B for Devices & Services, €1.65B for patent licenses).
+   * Microsoft Official Announcement
+   * Forbes Historical Deal Analysis
+* July 2015 Write-Down: $7.6 billion impairment charge plus ~7,800 job eliminations.
+   * Forbes Impairment Report
+   * Invertopedia Business Retrospective
+5. Stephen Elop's "Burning Platform" Memo
+* Date: February 8, 2011 (leaked February 9, 2011).
+* Paraphrased Core Message: Elop opened with an anecdote of an oil worker on a burning North Sea platform who chose to plunge into the icy dark ocean rather than face certain death on deck. He declared Nokia was surrounded by multiple intense fires—Apple dominating premium margins, Google Android sweeping mid-tiers, and low-cost Chinese OEMs expanding rapidly—urging the company to abandon complacency and take a leap into a new ecosystem.
+   * Stratrix Case Study Analysis
+   * Full Memo Text via Scribd Archive
+4. YouTube Publishing Details
+Description Template
+Nokia was the biggest phone maker in the world. Then the iPhone arrived, and within six years the company sold its phone business. This video explains what really went wrong, from internal politics to the Windows Phone gamble.
+
+
+Chapters:
+0:00 The biggest phone company on Earth
+0:30 The peak
+1:45 The iPhone arrives
+3:00 Mistake 1: A divided company
+4:15 Mistake 2: Losing the app race
+5:30 The burning platform
+6:45 The end of the phone business
+7:45 What we can learn
+
+
+Next video: Why Blockbuster Said No to Netflix
+
+
+Primary Sources:
+
+
+* Gartner Global Smartphone & Handset Market Reports (2007–2012)
+* Strategy Analytics Handset Vendor Tracker
+* Microsoft Investor Relations (2013 Acquisition & 2015 Impairment Filings)
+* Stephen Elop Internal Communication Memo (February 8, 2011)
+
+
+#nokia #businesshistory #companycollapse
+Tags: nokia downfall, why nokia failed, nokia vs iphone, nokia history, business case study, company collapse

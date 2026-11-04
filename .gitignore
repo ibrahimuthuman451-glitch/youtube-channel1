@@ -1,1 +1,4 @@
-nokia_out/
+.render/
+out/
+assets/
+__pycache__/
