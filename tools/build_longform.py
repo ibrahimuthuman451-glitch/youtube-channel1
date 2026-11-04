@@ -3,8 +3,8 @@
 
 This is the long-form cut the pipeline was missing. It is deliberately an *animatic*:
 section title, burned caption, and narration on a dark card, because the twelve stills
-in the asset manifest are not in the repo yet. Drop those images in later and the same
-timeline can carry them instead of the plain background.
+in the asset manifest are not in the repo yet. It does not composite stills — it renders
+the timeline, which is exactly what an image-backed cut would reuse.
 
 Inputs come from a perform_script.py run, so captions and section boundaries are the
 measured ones rather than guesses.
@@ -156,8 +156,8 @@ def main():
     print(f"\nOK  {a.out}")
     print(f"    {size:.1f} MB | {data.get('duration', 0) / 60:.1f} min | "
           f"1920x1080 {FPS}fps | {len(ranges)} titles + {len(chunks)} captions")
-    print("    animatic: section cards plus burned captions. Swap in the 12 stills for "
-          "the finished cut.")
+    print("    animatic: section cards plus burned captions. No stills composited - the "
+          "timeline is ready for an image-backed cut.")
 
 
 if __name__ == "__main__":
