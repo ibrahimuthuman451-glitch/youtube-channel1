@@ -5,7 +5,7 @@
 | | |
 |---|---|
 | Format | 16:9 long-form, 1920×1080 |
-| Runtime | 8:36 as rendered — 1,361 words, 12 sections (9:04 at a 150 wpm estimate) |
+| Runtime | 9:19 as uploaded — 1,361 words, 12 sections (9:04 at a 150 wpm estimate) |
 | Voice | `en-US-ChristopherNeural` @ `+0%` |
 | Script source of truth | `specs/video1.json` |
 | Voiceover | `python3 tools/make_voice.py --spec specs/video1.json` |
@@ -190,35 +190,35 @@ python3 tools/make_voice.py --spec specs/video1.json --voice en-GB-RyanNeural
 
 ---
 
-## Chapter timeline (measured, not estimated)
+## Chapter timeline (measured from the uploaded master)
 
-These are real timecodes from `out/voice/video-1-how-nokia-lost-everything/manifest.json`
-after an actual render — not arithmetic. Total runtime came out at **8:36**, slightly
-under the 9:04 estimate, because `edge-tts` delivered 2.64 words/sec (158 wpm) rather
-than the 150 wpm used for estimating.
+These timecodes come from `en-us-christopherneural.chunks.json`, i.e. the 9:19 perform
+render that `out/video/video1_master_1080p.mp4` was cut from — **not** the earlier 8:36
+`make_voice` render. Use these in the description. The older numbers drifted by up to 28
+seconds per chapter and would have put every marker on the wrong beat.
 
 | Start | Chapter | Length | Words | Asset |
 |---|---|---|---|---|
-| 0:00 | Cold open | 28.6s | 79 | `00_thumb_nokia_fell_fast.jpg` |
-| 0:29 | The peak that sounds fake | 43.3s | 122 | `01_the_peak_nokia_1100_era.jpg` |
-| 1:12 | It started as a paper mill | 52.3s | 136 | `02_paper_mill_1865.jpg` |
-| 2:05 | January 2007 | 44.9s | 109 | `03_the_iphone_arrives_2007.jpg` |
-| 2:51 | The shape of winning | 40.2s | 112 | `04_symbian_fragmentation.jpg` |
-| 3:31 | Three platforms, three abandonments | 49.7s | 124 | `05_mistake_1_divided_company_infighting.jpg` |
-| 4:22 | Why the bad news never arrived | 42.6s | 122 | `06_bad_news_stops_mid_level.jpg` |
-| 5:05 | The burning platform | 56.5s | 144 | `07_the_burning_platform_metaphor.jpg` |
-| 6:02 | The numbers | 48.4s | 122 | `08_the_end_microsoft_acquisition_lumia.jpg` |
-| 6:51 | Nokia isn't dead | 37.3s | 99 | `09_payoff_nokia_5g_telecom_infrastructure.jpg` |
-| 7:29 | The real lesson | 36.0s | 99 | `10_success_is_a_filter.jpg` |
-| 8:05 | Close | 30.7s | 93 | `11_closing_hold.jpg` |
+| 0:00 | Cold open | 30.5s | 79 | `00_thumb_nokia_fell_fast.jpg` |
+| 0:30 | The peak that sounds fake | 48.2s | 122 | `01_the_peak_nokia_1100_era.jpg` |
+| 1:19 | It started as a paper mill | 58.0s | 136 | `02_paper_mill_1865.jpg` |
+| 2:18 | January 2007 | 49.4s | 109 | `03_the_iphone_arrives_2007.jpg` |
+| 3:08 | The shape of winning | 44.1s | 112 | `04_symbian_fragmentation.jpg` |
+| 3:52 | Three platforms, three abandonments | 53.1s | 124 | `05_mistake_1_divided_company_infighting.jpg` |
+| 4:46 | Why the bad news never arrived | 46.9s | 122 | `06_bad_news_stops_mid_level.jpg` |
+| 5:33 | The burning platform | 62.8s | 144 | `07_the_burning_platform_metaphor.jpg` |
+| 6:36 | The numbers | 56.5s | 122 | `08_the_end_microsoft_acquisition_lumia.jpg` |
+| 7:34 | Nokia isn't dead | 40.9s | 99 | `09_payoff_nokia_5g_telecom_infrastructure.jpg` |
+| 8:15 | The real lesson | 38.7s | 99 | `10_success_is_a_filter.jpg` |
+| 8:54 | Close | 33.4s | 93 | `11_closing_hold.jpg` |
 
 Two structural notes the timeline makes obvious:
 
-1. **The peak lands at 0:29, not 0:00.** The cold open is 28 seconds of thesis before a
+1. **The peak lands at 0:30, not 0:00.** The cold open is 30.5 seconds of thesis before a
    single number arrives. If retention dies early, cut section 1 to 15 seconds — the
    thesis survives being halved, but the peak section cannot.
-2. **The longest chapter is the memo (56.5s).** That is also the emotional turn. Give it
-   the most visual movement: 3–4 shots, not one still.
+2. **The longest chapter is the burning platform (62.8s).** That is also the emotional
+   turn. Give it the most visual movement: 3–4 shots, not one still.
 
 ---
 
@@ -238,17 +238,17 @@ company sold its entire phone business. This is what actually broke — and it w
 the touchscreen.
 
 0:00 The setup
-0:29 The peak that sounds fake
-1:12 It started as a paper mill
-2:05 January 2007
-2:51 The shape of winning
-3:31 Three platforms, three abandonments
-4:22 Why the bad news never arrived
-5:05 The burning platform
-6:02 The numbers
-6:51 Nokia isn't dead
-7:29 The real lesson
-8:05 Close
+0:30 The peak that sounds fake
+1:19 It started as a paper mill
+2:18 January 2007
+3:08 The shape of winning
+3:52 Three platforms, three abandonments
+4:46 Why the bad news never arrived
+5:33 The burning platform
+6:36 The numbers
+7:34 Nokia isn't dead
+8:15 The real lesson
+8:54 Close
 
 Sources: Gartner and Strategy Analytics handset data, Microsoft's 2013–2015 filings,
 and contemporaneous reporting on the February 2011 internal memo.
@@ -269,7 +269,44 @@ because the bad news was late.
 
 ---
 
-## Sourcing and honesty notes
+## Uploading this as a retention test
+
+The animatic exists to answer one question cheaply: does the script hold for nine minutes
+before you spend anything on visuals? Because nothing moves on screen but text, a dip in
+the curve is the writing or the pacing — not missing b-roll.
+
+**Before publishing**
+
+- **Thumbnail:** `python3 tools/make_thumbnail.py` writes
+  `out/thumb/video1_thumbnail_1280x720.png` — the yellow/white series treatment, with every
+  line measured and shrunk to fit so text cannot overflow. 1280×720 is YouTube's 16:9 slot.
+- **Description:** paste the block above. Chapters only render if the list starts at 0:00
+  and every entry is 10s or more apart; both hold here.
+- **Public or unlisted matters.** Unlisted gives completion data but no recommendation
+  traffic, so click-through rate means nothing. If you want to read CTR, publish it.
+
+**What to read, and when**
+
+At 24–48 hours, in Studio → Analytics → Engagement → retention curve:
+
+| Metric | Target | If it misses |
+|---|---|---|
+| Retention at 0:30 | > 70% | The cold open is 30.5s of thesis before any number. Under 60%: cut section 1 to ~15s and re-upload. |
+| Average % viewed | > 35% at 9:19 | Pacing is too slow — try `--wpm 165` and rebuild. |
+| A single cliff | — | That chapter is what to cut. |
+
+**Specific suspects in this script**, so you know where to look before the data arrives:
+
+- **1:19 — the paper mill (58.0s).** Backstory before the conflict. The most likely early
+  drop; the 1865 origin can survive being halved.
+- **5:33 — the burning platform (62.8s).** Longest chapter, and the emotional turn. A
+  cliff here means trim to ~40s, not that the memo is wrong.
+- **7:34 — "Nokia isn't dead".** If viewers leave here, they came for the collapse and do
+  not want the twist. That is a title problem, not a script problem.
+
+**What it cannot tell you:** anything about performance with real footage. Do not conclude
+the topic is dead from an animatic's CTR — here the thumbnail is doing all the work alone.
+
 
 Every factual claim in this script was already in `content/nokia-shorts-pack.md`, which
 traced them to Gartner and Strategy Analytics handset data, Microsoft's filings, and
