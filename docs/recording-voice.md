@@ -108,6 +108,39 @@ Default voice is `en-US-ChristopherNeural`. Swap with `--voice`, tune with `--ra
    this too, and it reads more naturally.
 6. **Export WAV or high-bitrate MP3.** The pipeline accepts either.
 
+## Delivering a performance (pauses, pace, emphasis)
+
+`tools/make_voice.py` gives clean audio per section. When *how* it reads also matters,
+`tools/perform_script.py` renders the whole script as one take:
+
+```bash
+python3 tools/perform_script.py --spec specs/video1.json --voice en-US-ChristopherNeural
+python3 tools/perform_script.py --spec specs/video1.json --wpm 150 --wpm-basis overall
+python3 tools/perform_script.py --spec specs/video1.json --voice en-US-RogerNeural --pause 0.6
+```
+
+None of it is a single flag on the free endpoint, so here is what it actually does:
+
+- **Real pauses.** `<break>` is rejected along with all custom SSML, so every sentence
+  and em-dash boundary is synthesised separately and joined with actual silence. Each
+  clip is trimmed of edge-tts's own padding (by detecting speech, not by blanket
+  `silenceremove`, which clips word tails), and the inserted gap is reduced by the
+  per-clip guard so the *measured* pause equals the requested one. Verified on a full
+  render: 0.501 s median across 101 boundaries.
+- **A pace target that accounts for those pauses.** Hitting 150 wpm *overall* forces the
+  speech faster than 150. `--wpm-basis speech` (default) targets the reading pace and
+  adds pauses on top. Every run prints both the speech-only and overall figure.
+- **Emphasis on money and dates.** Sentences holding a figure or year are read about
+  four percentage points slower (`--figure-slower`). Per-word stress needs SSML the
+  endpoint will not accept, so this is the only lever available.
+
+It speaks the script and nothing else — no title, no intro, no sign-off.
+
+Expect one side effect: isolated sentences read faster than flowing narration, so a
+150 wpm overall target pushes `--rate` to roughly -18% for Christopher — a slower, more
+forensic delivery than his default. That is the price of a hard pause at every period.
+Raise `--wpm`, shorten `--pause`, or drop `--figure-slower` if it feels sluggish.
+
 ## If the voice is not going to be yours
 
 Wanting a US-neutral narrator is a legitimate production decision, and it does not
