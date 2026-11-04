@@ -158,6 +158,106 @@ def prepare_frame(src, dst, mode="auto"):
     return mode
 
 
+def run_ff(args):
+    subprocess.run([FF, "-y", "-hide_banner", "-loglevel", "error"] + args, check=True)
+
+
+def enhance_voice(src, dst):
+    """Broadcast-style cleanup for a home recording: the chain a podcast would use."""
+    af = (
+        "highpass=f=90,"                      # kill rumble / desk thumps
+        "afftdn=nf=-25,"                      # FFT denoise for room hiss
+        "equalizer=f=300:t=q:w=1:g=-2,"       # tame boxiness
+        "equalizer=f=3200:t=q:w=1:g=2.5,"     # presence / intelligibility
+        "acompressor=threshold=-18dB:ratio=3:attack=8:release=180,"
+        "loudnorm=I=-14:TP=-1.5:LRA=11"       # platform loudness target
+    )
+    run_ff(["-i", src, "-af", af, "-ar", "48000", "-ac", "1", dst])
+
+
+def speech_segments(audio, noise="-35dB", min_sil=0.35):
+    """Find spoken stretches so a raw recording can be captioned without transcription."""
+    p = subprocess.run([FF, "-hide_banner", "-i", audio,
+                        "-af", f"silencedetect=noise={noise}:d={min_sil}",
+                        "-f", "null", "-"], capture_output=True, text=True)
+    log = p.stderr or ""
+    sil = [(float(a), float(b)) for a, b in
+           re.findall(r"silence_start: ([\d.]+).*?silence_end: ([\d.]+)", log, re.S)]
+    total = duration_of(audio)
+    segs, prev = [], 0.0
+    for s, e in sil:
+        if s - prev > 0.12:
+            segs.append((prev, s))
+        prev = max(prev, e)
+    if total - prev > 0.12:
+        segs.append((prev, total))
+    return segs or [(0.0, total)]
+
+
+def timings_from_audio(audio, script):
+    """Lay the script's words over the recording's real speech segments."""
+    toks = script.split()
+    segs = speech_segments(audio)
+    if not toks:
+        return []
+    weights = [len(t.strip(".,!?;:—\"'()")) + 2 for t in toks]
+    total_w = sum(weights)
+    span = sum(e - s for s, e in segs)
+    out, i = [], 0
+    for s, e in segs:
+        share = (e - s) / span if span else 1.0
+        want = max(1, round(len(toks) * share))
+        if sum(1 for _ in out) and i + want > len(toks):
+            want = len(toks) - i
+        chunk = list(range(i, min(i + want, len(toks))))
+        if not chunk:
+            continue
+        cw = sum(weights[j] for j in chunk) or 1
+        t = s
+        for j in chunk:
+            d = (e - s) * weights[j] / cw
+            out.append({"text": toks[j], "start": t, "end": t + d})
+            t += d
+        i += len(chunk)
+    while i < len(toks):  # any leftover words ride the tail
+        out.append({"text": toks[i], "start": out[-1]["end"] if out else 0.0,
+                    "end": (out[-1]["end"] if out else 0.0) + 0.3})
+        i += 1
+    return out
+
+
+def revoice_matching(script, voice, target, workdir, base):
+    """Re-speak the script native, tuned to the length of the user's own take.
+
+    This is the honest way to 'sound native': keep their pacing, replace the voice.
+    """
+    rate, best = 0.0, None
+    for i in range(5):
+        p = os.path.join(workdir, f"{base}_v{i}.mp3")
+        words = asyncio.run(synth(script, voice, f"{rate:+.0f}%", p))
+        d = duration_of(p)
+        best = (p, words, d)
+        if target and abs(d - target) / target <= 0.03:
+            break
+        if not target:
+            break
+        rate = max(-40.0, min(60.0, rate + (d / target - 1) * 100))
+    return best
+
+
+def fit_duration(src, dst, target, words):
+    """Time-stretch to the exact target length and rescale caption timings to match."""
+    d = duration_of(src)
+    ratio = target / d if d else 1.0
+    run_ff(["-i", src, "-af", f"atempo={max(0.5, min(2.0, ratio))}",
+            "-ar", "48000", "-ac", "1", dst])
+    if abs(ratio - 1.0) > 0.001:
+        for w in words:
+            w["start"] *= ratio
+            w["end"] *= ratio
+    return dst
+
+
 def build_ass(cards, path):
 
     """White captions, with numeric cards pushed to yellow for emphasis."""
@@ -225,6 +325,11 @@ def main():
     ap.add_argument("--out", required=True)
     ap.add_argument("--voice", default="en-US-ChristopherNeural")
     ap.add_argument("--rate", default="+0%")
+    ap.add_argument("--audio", help="use your own recording instead of TTS")
+    ap.add_argument("--enhance", action="store_true",
+                    help="clean up a recorded voice (denoise, EQ, compress, normalise)")
+    ap.add_argument("--revocalize", action="store_true",
+                    help="re-speak the script in a native voice, matched to your take's length")
     ap.add_argument("--fit", default="auto", choices=["auto", "crop", "blur"])
     ap.add_argument("--workdir", default="/workspace/.render")
     a = ap.parse_args()
@@ -244,15 +349,41 @@ def main():
     mp3 = os.path.join(a.workdir, base + ".mp3")
     ass = os.path.join(a.workdir, base + ".ass")
     frame = os.path.join(a.workdir, base + "_frame.jpg")
-
     mode = prepare_frame(image, frame, a.fit)
-    words = asyncio.run(synth(script, a.voice, a.rate, mp3))
+
+    if a.audio:
+        # ---- Recorded-voice path ----
+        voice_src = a.audio
+        if a.enhance:
+            enhanced = os.path.join(a.workdir, base + "_enhanced.wav")
+            enhance_voice(voice_src, enhanced)
+            voice_src = enhanced
+
+        if a.revocalize:
+            target = duration_of(voice_src)
+            tmp, words, got = revoice_matching(
+                script, a.voice, target, a.workdir, base)
+            audio = tmp
+            if target and abs(got - target) / target > 0.02:
+                audio = fit_duration(tmp, os.path.join(a.workdir, base + "_fit.wav"),
+                                     target, words)
+            print(f"    revocalized: your take {target:.2f}s -> native {got:.2f}s")
+        else:
+            audio = voice_src
+            words = timings_from_audio(audio, script)
+    else:
+        mp3 = os.path.join(a.workdir, base + ".mp3")
+        words = asyncio.run(synth(script, a.voice, a.rate, mp3))
+        audio = mp3
+
     if not words:
-        sys.exit("TTS returned no word timings — check network")
+        sys.exit("no word timings produced — check network / input audio")
+
+    ass = os.path.join(a.workdir, base + ".ass")
     cards = group_cards(words)
     build_ass(cards, ass)
-    dur = duration_of(mp3)
-    build_video(frame, mp3, ass, a.out, dur)
+    dur = duration_of(audio)
+    build_video(frame, audio, ass, a.out, dur)
 
     print(f"OK  {a.out}")
     print(f"    duration {dur:.2f}s | {len(words)} words | {len(cards)} caption cards")
