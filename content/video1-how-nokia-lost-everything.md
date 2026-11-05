@@ -341,7 +341,9 @@ Stating the gaps plainly, so nothing here is mistaken for finished video:
   existing pipeline. Your editor supplies motion, transitions, and any archive video.
 - **No music or SFX.** Neither is licensed here, and a 9-minute bed needs a real licence.
 - **Five of the twelve stills are unsourced.** Rows flagged **Needs sourcing** in the
-  asset manifest above. The other seven exist in the Drive folder.
+  asset manifest above. The other seven exist in the Drive folder. Until they land,
+  `python3 tools/make_placeholders.py --spec specs/video1.json` writes a branded
+  1920x1080 stand-in at each missing path, so the master is whole while you source.
 - **The cut has no motion by default.** `tools/build_longform.py` composites the stills
   (one per section, cover-cropped to 1080p, with a gradient scrim behind the title and
   captions) and falls back to a card for any still that is missing. Add `--ken-burns` for

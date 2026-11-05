@@ -32,6 +32,10 @@ python3 tools/perform_script.py --spec specs/video1.json
 AZURE_SPEECH_KEY=... AZURE_SPEECH_REGION=eastus \
   python3 tools/perform_script.py --spec specs/video1.json --engine azure
 
+# optional step 0: brand a placeholder for every section missing an asset
+# (never overwrites a real still; --dry-run to preview, --overwrite to force)
+python3 tools/make_placeholders.py --spec specs/video1.json
+
 # 1080p master with section titles and burned captions
 # (drops in any stills found under assets/, card fallback for the rest)
 # add --ken-burns for a slow push-in on each section
@@ -45,7 +49,8 @@ python3 tools/voice_audition.py --spec specs/video1.json --section hook --montag
 ```
 
 Other tools: `make_short.py` (9:16 short from one still + script), `build_series.py`
-(render all 8 shorts), `make_thumbnail.py` (16:9 thumbnail).
+(render all 8 shorts), `make_thumbnail.py` (16:9 thumbnail), `make_placeholders.py`
+(branded 1080p still for any section missing an asset).
 
 ## Where the media lives
 
