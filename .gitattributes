@@ -1,0 +1,10 @@
+# Batch files must land on disk with CRLF: cmd.exe can mis-handle `goto` labels in
+# LF-only files, which would make run_windows.bat fail in confusing ways.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Shell and Python stay LF.
+*.sh  text eol=lf
+*.py  text eol=lf
+*.json text eol=lf
+*.md  text eol=lf

@@ -48,6 +48,19 @@ python3 tools/build_longform.py --spec specs/video1.json \
 python3 tools/voice_audition.py --spec specs/video1.json --section hook --montage
 ```
 
+### Windows
+
+Double-click **`run_windows.bat`**. It installs dependencies, generates the narration,
+builds the master, and opens the output folder.
+
+If you'd rather type the commands yourself, three things bite on Windows:
+
+- the interpreter is **`python`**, not `python3` — `python3` resolves to a Microsoft
+  Store stub that just tells you Python was not found;
+- **CMD has no `\` line continuation**, so each command must sit on **one line**
+  (continuation in a `.bat` is `^`, not `\`);
+- **`ffmpeg` needs no separate install** — `imageio-ffmpeg` ships its own binary.
+
 Other tools: `make_short.py` (9:16 short from one still + script), `build_series.py`
 (render all 8 shorts), `make_thumbnail.py` (16:9 thumbnail), `make_placeholders.py`
 (branded 1080p still for any section missing an asset).
