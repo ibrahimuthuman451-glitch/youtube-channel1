@@ -19,6 +19,7 @@ measured ones rather than guesses.
       --out out/video/video1_master.mp4
 """
 import argparse
+import glob
 import json
 import os
 import sys
@@ -122,6 +123,47 @@ def resolve_still(asset, assets_dir):
     return p if os.path.isfile(p) else None
 
 
+def section_shots(asset, assets_dir):
+    """Every still belonging to one section.
+
+    Two ways to give a section more than one picture: list them explicitly in the spec
+    (`"assets": [...]`), or simply name the extra files with the same numeric prefix -
+    `01_the_peak_a.jpg`, `01_the_peak_b.jpg` - and they are picked up automatically.
+    """
+    if not asset:
+        return []
+    p = resolve_still(asset, assets_dir)
+    if not p:
+        return []
+    base = os.path.basename(p)
+    if len(base) >= 2 and base[:2].isdigit():
+        sibs = [s for s in sorted(glob.glob(os.path.join(os.path.dirname(p), base[:2] + "_*")))
+                if s.lower().endswith((".jpg", ".jpeg", ".png"))]
+        if len(sibs) > 1:
+            return sibs
+    return [p]
+
+
+def make_punch_in(src, work, si, k, frac=0.74):
+    """A tighter crop of an existing photo, framed off-centre, as an extra coverage shot.
+
+    Documentaries cut to a punch-in on the same still all the time. It costs nothing and
+    beats holding one wide frame for a forty-second chapter.
+    """
+    from PIL import Image
+    im = Image.open(src).convert("RGB")
+    w0, h0 = im.size
+    cw, ch = int(w0 * frac), int(h0 * frac)
+    offsets = (0.32, 0.68, 0.5)
+    cx = int(offsets[k % len(offsets)] * w0)
+    left = max(0, min(w0 - cw, cx - cw // 2))
+    top = max(0, min(h0 - ch, (h0 - ch) // 2))
+    out = os.path.join(work, f"punch{si:02d}_{k}.jpg")
+    im.crop((left, top, left + cw, top + ch)).resize((w0, h0), Image.LANCZOS).save(
+        out, quality=95)
+    return out
+
+
 def normalize_still(src, dst):
     """Cover-fit to 1920x1080.
 
@@ -159,12 +201,12 @@ def build_scrim(path, top_opacity, top_h, bot_opacity, bot_h):
     return path
 
 
-def ken_burns_chain(idx, frames, zoom_max):
-    """A slow push-in, one frame per input frame, travelling 1.0x -> zoom_max.
+def ken_burns_chain(idx, frames, zoom_max, reverse=False):
+    """A slow push-in (or pull-out), one frame per input frame, travelling 1.0x <-> zoom_max.
 
     Two deliberate differences from the usual snippet:
 
-    * the per-frame step is derived from *this section's* frame count, so a 30s section
+    * the per-frame step is derived from *this shot's* frame count, so a 30s section
       and a 63s section both travel the full zoom across their own length. A fixed
       `zoom+0.0005` reaches the ceiling after 300 frames (10s at 30fps) and then sits
       still for the remaining 53s.
@@ -172,14 +214,18 @@ def ken_burns_chain(idx, frames, zoom_max):
       still with `-loop 1 -t`, so pairing that with `d=<total frames>` would duplicate
       every frame by the section length.
 
-    It also takes the *original* still, not the pre-cropped 1080p one, so the 1.5x
-    upscale has real pixels to work with.
+    `reverse=True` pulls out instead of pushing in, so consecutive shots alternate
+    direction instead of all drifting the same way.
     """
     up_w, up_h = W * 3 // 2, H * 3 // 2
     step = (zoom_max - 1.0) / max(1, frames)
+    if reverse:
+        z = f"max({zoom_max:.4f}-{step:.8f}*on,1.0)"
+    else:
+        z = f"min(1+{step:.8f}*on,{zoom_max:.4f})"
     return (f"[{idx}:v]scale={up_w}:{up_h}:force_original_aspect_ratio=increase,"
             f"crop={up_w}:{up_h},"
-            f"zoompan=z='min(1+{step:.8f}*on,{zoom_max})':d=1:"
+            f"zoompan=z='{z}':d=1:"
             f"x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':"
             f"s={W}x{H}:fps={FPS},format=yuv420p,setsar=1[k{idx}]")
 
@@ -208,6 +254,10 @@ def main():
                          "a held still; slower to encode")
     ap.add_argument("--zoom-max", type=float, default=1.15,
                     help="final zoom for --ken-burns")
+    ap.add_argument("--shots", type=int, default=1,
+                    help="target number of shots per section: extra photos sharing the "
+                         "same numeric prefix are used first, then punch-in crops of the "
+                         "existing photo. 4 gives roughly 12s per shot on a 9 minute cut")
     a = ap.parse_args()
 
     for p in (a.spec, a.audio, a.chunks):
@@ -238,11 +288,12 @@ def main():
         end = ranges[i + 1]["start"] if i + 1 < len(ranges) else total
         durations.append(max(0.5, end - r["start"]))
 
-    stills = [resolve_still(s.get("asset"), a.assets) for s in secs]
-    found = sum(1 for s in stills if s)
-    if stills:
-        print(f"  stills: {found} of {len(stills)} found under {a.assets}/ "
-              f"({'card fallback for the rest' if found < len(stills) else 'all sections'})")
+    shots_per_section = [section_shots(s.get("asset"), a.assets) for s in secs]
+    with_art = sum(1 for sh in shots_per_section if sh)
+    if shots_per_section:
+        extra = sum(max(0, len(sh) - 1) for sh in shots_per_section)
+        print(f"  stills: {with_art} of {len(secs)} sections have art under {a.assets}/"
+              f"{f' (+{extra} extra photos)' if extra else ''}")
 
     outdir = os.path.dirname(os.path.abspath(a.out))
     os.makedirs(outdir, exist_ok=True)
@@ -260,29 +311,42 @@ def main():
            "-c:a", "aac", "-b:a", "192k", "-ar", "48000",
            "-movflags", "+faststart", "-shortest", a.out]
 
-    if found:
+    if with_art:
+        # One shot per photo. A section with four shots is cut into four equal beats, so
+        # no single image sits on screen for a whole 40-60s chapter.
+        segments = []
+        for si, (dur, shots) in enumerate(zip(durations, shots_per_section)):
+            if not shots:
+                segments.append((bg, dur, False))
+                continue
+            use = list(shots[:a.shots]) if a.shots > 1 else [shots[0]]
+            while a.shots > 1 and len(use) < a.shots:
+                k = len(use) - len(shots)
+                use.append(make_punch_in(shots[k % len(shots)], work, si, k))
+            per = dur / len(use)
+            for k, s in enumerate(use):
+                segments.append((s, per, k % 2 == 1))
+
         # Ken Burns needs the untouched still for zoom headroom; the static path
         # pre-crops once to 1080p.
-        if a.ken_burns:
-            paths = [s if s else bg for s in stills]
-        else:
-            paths = [normalize_still(s, os.path.join(work, f"sec{i:02d}.jpg"))
-                     if s else bg for i, s in enumerate(stills)]
+        paths = [p if a.ken_burns else normalize_still(p, os.path.join(work, f"seg{i:03d}.jpg"))
+                 for i, (p, _, _) in enumerate(segments)]
 
         inputs = []
-        for path, dur in zip(paths, durations):
+        for path, (_, dur, _) in zip(paths, segments):
             inputs += ["-loop", "1", "-framerate", str(FPS),
                        "-t", f"{dur:.3f}", "-i", path]
 
         n = len(paths)
         if a.ken_burns:
             chains = "".join(
-                ken_burns_chain(i, max(1, int(round(durations[i] * FPS))), a.zoom_max) + ";"
+                ken_burns_chain(i, max(1, int(round(segments[i][1] * FPS))), a.zoom_max,
+                                reverse=segments[i][2]) + ";"
                 for i in range(n))
-            mode = f"ken burns 1.0x->{a.zoom_max}x"
+            mode = f"ken burns 1.0x<->{a.zoom_max}x"
         else:
             chains = "".join(f"[{i}:v]format=yuv420p,setsar=1[k{i}];" for i in range(n))
-            mode = "static stills"
+            mode = "static"
         join = "".join(f"[k{i}]" for i in range(n)) + f"concat=n={n}:v=1:a=0[bgv];"
 
         # Gradient scrim overlaid as its own looped input: hard drawbox bands looked
@@ -300,8 +364,8 @@ def main():
               f"[b1][s1]overlay=0:0:format=auto,format=yuv420p[sc];"
               f"[sc]subtitles='{sub_arg}'[v]")
 
-        print(f"  encoding 1920x1080 with {found}/{n} stills, {mode} ... "
-              f"(several minutes)")
+        print(f"  encoding 1920x1080 with {n} shots from {with_art} sections, {mode} "
+              f"({sum(segments[i][1] for i in range(n)) / n:.1f}s avg shot) ...")
         run_ff(inputs + ["-filter_complex", fc,
                          "-map", "[v]", "-map", f"{n + 1}:a"] + enc)
     else:
@@ -314,8 +378,8 @@ def main():
     print(f"\nOK  {a.out}")
     print(f"    {size:.1f} MB | {data.get('duration', 0) / 60:.1f} min | "
           f"1920x1080 {FPS}fps | {len(ranges)} titles + {len(chunks)} captions")
-    print("    stills: " + (f"{found}/{len(ranges)} sections use a still, the rest fall "
-                           f"back to the card" if found else
+    print("    stills: " + (f"{with_art}/{len(ranges)} sections use a still, the rest fall "
+                           f"back to the card" if with_art else
                            "none found - section cards only"))
 
 
