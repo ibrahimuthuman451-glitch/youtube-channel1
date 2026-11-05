@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 """Assemble a 16:9 long-form master from a script spec, its narration, and its timings.
 
-This is the long-form cut the pipeline was missing. It is deliberately an *animatic*:
-section title, burned caption, and narration on a dark card, because the twelve stills
-in the asset manifest are not in the repo yet. It does not composite stills — it renders
-the timeline, which is exactly what an image-backed cut would reuse.
+This assembles a 16:9 long-form master from a spec, its narration, and its timings.
+
+Each section shows its still from `--assets` (cover-cropped to 1920x1080), or a dark card
+when that still is not there yet, with a scrim behind the captions and the title so both
+stay legible over a photo. Text is drawn by the ASS layer rather than drawtext: the prose
+is full of apostrophes and colons that would have to be escaped into the filter graph.
+Sections are tiled end to end from the measured chunk timeline, so the pauses between
+sections never leave a hole in the picture.
 
 Inputs come from a perform_script.py run, so captions and section boundaries are the
 measured ones rather than guesses.
@@ -105,6 +109,56 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     return path
 
 
+def resolve_still(asset, assets_dir):
+    """Map a spec asset path onto a real file, or None if it is not there yet.
+
+    Spec paths look like `assets/video1/00_thumb.jpg`. Only the part after `assets/` is
+    used, so `--assets /tmp/testset` can point at a stand-in set without editing specs.
+    """
+    if not asset:
+        return None
+    rel = asset[len("assets/"):] if asset.startswith("assets/") else asset
+    p = os.path.join(assets_dir, rel)
+    return p if os.path.isfile(p) else None
+
+
+def normalize_still(src, dst):
+    """Cover-fit to 1920x1080.
+
+    `force_original_aspect_ratio=increase` then `crop` is the chain that makes a portrait
+    phone photo and a 2.35:1 still both fill the frame without letterboxing or stretching.
+    """
+    run_ff(["-i", src,
+            "-vf", f"scale={W}:{H}:force_original_aspect_ratio=increase,"
+                   f"crop={W}:{H},setsar=1",
+            "-frames:v", "1", "-q:v", "2", dst])
+    return dst
+
+
+def build_scrim(path, top_opacity, top_h, bot_opacity, bot_h):
+    """A transparent PNG with black ramping in from the top and bottom edges.
+
+    A flat `drawbox` band gives a hard horizontal seam that reads as letterboxing. A
+    gradient reads as a deliberate treatment, and it keeps both the title and the
+    captions legible over a bright photo without flattening the picture.
+    """
+    from PIL import Image
+    img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    px = img.load()
+    for y in range(H):
+        a = 0.0
+        if top_h > 0 and y < top_h:
+            a = top_opacity * (1.0 - y / top_h) ** 1.4
+        if bot_h > 0 and y >= H - bot_h:
+            a = bot_opacity * ((y - (H - bot_h)) / bot_h) ** 1.4
+        if a > 0:
+            alpha = int(round(255 * min(1.0, a)))
+            for x in range(W):
+                px[x, y] = (0, 0, 0, alpha)
+    img.save(path)
+    return path
+
+
 def main():
     sys.stdout.reconfigure(line_buffering=True)
     ap = argparse.ArgumentParser()
@@ -113,6 +167,17 @@ def main():
     ap.add_argument("--chunks", required=True, help="chunks.json from perform_script.py")
     ap.add_argument("--out", required=True)
     ap.add_argument("--crf", default="23")
+    ap.add_argument("--assets", default="assets",
+                    help="assets root holding the per-section stills (spec paths are "
+                         "relative to it, e.g. assets/video1/01_x.jpg)")
+    ap.add_argument("--scrim-height", type=int, default=300,
+                    help="height in px of the dark band behind the captions")
+    ap.add_argument("--scrim-opacity", type=float, default=0.60,
+                    help="opacity of the caption scrim (0-1)")
+    ap.add_argument("--title-scrim", type=float, default=0.45,
+                    help="opacity of the band behind the section title, so it stays "
+                         "legible over a bright photo (0 disables)")
+    ap.add_argument("--title-scrim-height", type=int, default=190)
     a = ap.parse_args()
 
     for p in (a.spec, a.audio, a.chunks):
@@ -125,13 +190,29 @@ def main():
         data = json.load(f)
     chunks = data["items"]
 
-    ranges, matched = section_ranges(sections_from_spec(spec), chunks)
+    secs = sections_from_spec(spec)
+    ranges, matched = section_ranges(secs, chunks)
     if matched != len(chunks):
         print(f"  WARNING: {len(chunks)} chunks but {matched} matched to sections; "
               f"titles may drift")
     print(spec.get("name", os.path.basename(a.spec)))
     print(f"  {len(chunks)} captions | {len(ranges)} sections | "
           f"{data.get('duration', 0):.1f}s narration")
+
+    # Tile the whole timeline: a section runs until the next one starts, and the last
+    # one runs to the end of the audio. Without this, the 0.5s pauses between sections
+    # would leave gaps in the picture.
+    total = data.get("duration") or (chunks[-1]["start"] + chunks[-1]["duration"])
+    durations = []
+    for i, r in enumerate(ranges):
+        end = ranges[i + 1]["start"] if i + 1 < len(ranges) else total
+        durations.append(max(0.5, end - r["start"]))
+
+    stills = [resolve_still(s.get("asset"), a.assets) for s in secs]
+    found = sum(1 for s in stills if s)
+    if stills:
+        print(f"  stills: {found} of {len(stills)} found under {a.assets}/ "
+              f"({'card fallback for the rest' if found < len(stills) else 'all sections'})")
 
     outdir = os.path.dirname(os.path.abspath(a.out))
     os.makedirs(outdir, exist_ok=True)
@@ -143,21 +224,59 @@ def main():
 
     # Escape the subtitle path: ':' and '\' are filter-graph syntax.
     sub_arg = ass.replace("\\", "\\\\").replace(":", "\\:").replace("'", "\\'")
-    print("  encoding 1920x1080 ... (several minutes for a 9 minute master)")
-    run_ff(["-loop", "1", "-framerate", str(FPS), "-i", bg,
-            "-i", a.audio,
-            "-vf", f"subtitles='{sub_arg}'",
-            "-c:v", "libx264", "-preset", "veryfast", "-crf", a.crf,
-            "-pix_fmt", "yuv420p", "-r", str(FPS),
-            "-c:a", "aac", "-b:a", "192k", "-ar", "48000",
-            "-movflags", "+faststart", "-shortest", a.out])
+
+    enc = ["-c:v", "libx264", "-preset", "veryfast", "-crf", a.crf,
+           "-pix_fmt", "yuv420p", "-r", str(FPS),
+           "-c:a", "aac", "-b:a", "192k", "-ar", "48000",
+           "-movflags", "+faststart", "-shortest", a.out]
+
+    if found:
+        # One looped input per section, each held for its measured duration, then
+        # concatenated. Text deliberately stays in the ASS layer: drawtext would have to
+        # escape every apostrophe and colon in the prose (and this script is full of
+        # them), while the ASS pass already wraps and styles correctly.
+        normalized = [normalize_still(s, os.path.join(work, f"sec{i:02d}.jpg"))
+                      if s else bg for i, s in enumerate(stills)]
+        inputs = []
+        for path, dur in zip(normalized, durations):
+            inputs += ["-loop", "1", "-framerate", str(FPS),
+                       "-t", f"{dur:.3f}", "-i", path]
+
+        n = len(normalized)
+        chains = "".join(f"[{i}:v]format=yuv420p,setsar=1[k{i}];" for i in range(n))
+        join = "".join(f"[k{i}]" for i in range(n)) + f"concat=n={n}:v=1:a=0[bgv];"
+
+        # Gradient scrim overlaid as its own looped input: hard drawbox bands looked
+        # like letterboxing on a wide still.
+        scrim_png = build_scrim(os.path.join(work, "scrim.png"),
+                                a.title_scrim, a.title_scrim_height,
+                                a.scrim_opacity, a.scrim_height)
+        inputs += ["-loop", "1", "-framerate", str(FPS),
+                   "-t", f"{sum(durations):.3f}", "-i", scrim_png]
+        # Audio last: the scrim must keep index n so the filter graph can name it.
+        inputs += ["-i", a.audio]
+        fc = (chains + join +
+              f"[bgv]format=yuv420p[b1];"
+              f"[{n}:v]format=rgba[s1];"
+              f"[b1][s1]overlay=0:0:format=auto,format=yuv420p[sc];"
+              f"[sc]subtitles='{sub_arg}'[v]")
+
+        print(f"  encoding 1920x1080 with {found}/{n} stills ... (several minutes)")
+        run_ff(inputs + ["-filter_complex", fc,
+                         "-map", "[v]", "-map", f"{n + 1}:a"] + enc)
+    else:
+        print("  encoding 1920x1080 ... (no stills found, single card)")
+        run_ff(["-loop", "1", "-framerate", str(FPS), "-i", bg,
+                "-i", a.audio,
+                "-vf", f"subtitles='{sub_arg}'"] + enc)
 
     size = os.path.getsize(a.out) / (1024 * 1024)
     print(f"\nOK  {a.out}")
     print(f"    {size:.1f} MB | {data.get('duration', 0) / 60:.1f} min | "
           f"1920x1080 {FPS}fps | {len(ranges)} titles + {len(chunks)} captions")
-    print("    animatic: section cards plus burned captions. No stills composited - the "
-          "timeline is ready for an image-backed cut.")
+    print("    stills: " + (f"{found}/{len(ranges)} sections use a still, the rest fall "
+                           f"back to the card" if found else
+                           "none found - section cards only"))
 
 
 if __name__ == "__main__":

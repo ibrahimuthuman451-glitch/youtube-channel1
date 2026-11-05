@@ -342,11 +342,10 @@ Stating the gaps plainly, so nothing here is mistaken for finished video:
 - **No music or SFX.** Neither is licensed here, and a 9-minute bed needs a real licence.
 - **Five of the twelve stills are unsourced.** Rows flagged **Needs sourcing** in the
   asset manifest above. The other seven exist in the Drive folder.
-- **No long-form assembly tool.** `tools/make_short.py` is deliberately single-still
-  9:16 short-form; it is not a 16:9 multi-asset editor. `make_voice.py` produces the
-  audio, the timing map, and the per-section targets — the cut itself is still an
-  editor's job (or a future `tools/build_longform.py`, which would want the per-section
-  MP4s that `make_short.py` can already produce one at a time).
+- **The cut has no motion.** `tools/build_longform.py` now composites the stills (one per
+  section, cover-cropped to 1080p, with a gradient scrim behind the title and captions),
+  and falls back to a card for any still that is missing. What it does not do is move the
+  image: no Ken Burns push, no transitions. Add those once the pictures are final.
 - **No end screen or subscribe animation.** Standard 20-second outro not written, because
   the close is a question and padding after it costs retention.
 
