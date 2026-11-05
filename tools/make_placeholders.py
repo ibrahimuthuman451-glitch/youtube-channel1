@@ -43,42 +43,49 @@ def target_path(asset, assets_dir):
     return os.path.join(assets_dir, rel)
 
 
-def draw_placeholder(path, index, total, filename):
+def draw_placeholder(path, index, total, filename, w=W, h=H):
     """Dark branded card: section number and the filename to supply.
 
     The section title is deliberately *not* drawn here. build_longform already renders it
     from the ASS title layer at the top of frame, so painting it into the still as well
     would put it on screen twice.
 
-    The corner ticks sit outside the text columns - the first attempt drew them at the
-    text origin and their arms cut through "PLACEHOLDER" and the counter.
+    Every position is derived from the frame size, so the same layout works for 1920x1080
+    long-form and 1080x1920 vertical shorts. The proportions reproduce the original 16:9
+    design exactly.
     """
-    img = Image.new("RGB", (W, H), (12, 12, 14))
+    img = Image.new("RGB", (w, h), (12, 12, 14))
     d = ImageDraw.Draw(img)
-    for y in range(H):
-        v = int(9 + 20 * (y / H))
-        d.line([(0, y), (W, y)], fill=(v, v, v + 3))
+    for y in range(h):
+        v = int(9 + 20 * (y / h))
+        d.line([(0, y), (w, y)], fill=(v, v, v + 3))
 
-    for cx, cy, sx, sy in ((46, 46, 1, 1), (W - 46, 46, -1, 1)):
-        d.line([(cx, cy), (cx + 54 * sx, cy)], fill=YEL, width=4)
-        d.line([(cx, cy), (cx, cy + 54 * sy)], fill=YEL, width=4)
+    # Vertical frames get a wider inset: make_short's 9:16 framing zooms in slightly, and
+    # at the 16:9 margin the corner labels were being clipped at the frame edges.
+    inset = 0.14 if h > w else 0.068
+    margin, arm = int(w * inset), int(w * 0.028)
+    tick, lab_y = int(w * (0.085 if h > w else 0.024)), int(h * 0.057)
+    for cx, sx in ((tick, 1), (w - tick, -1)):
+        d.line([(cx, tick), (cx + arm * sx, tick)], fill=YEL, width=4)
+        d.line([(cx, tick), (cx, tick + arm)], fill=YEL, width=4)
 
-    d.text((MARGIN, 62), "PLACEHOLDER", font=load(30), fill=DIM)
+    d.text((margin, lab_y), "PLACEHOLDER", font=load(int(h * 0.028)), fill=DIM)
     counter = f"{index:02d} / {total:02d}"
-    cw = d.textlength(counter, font=load(30))
-    d.text((W - MARGIN - cw, 62), counter, font=load(30), fill=DIM)
+    cf = load(int(h * 0.028))
+    cw = d.textlength(counter, font=cf)
+    d.text((w - margin - cw, lab_y), counter, font=cf, fill=DIM)
 
-    # Section number, large, centred in the safe band (clear of the ASS title and captions).
     num = f"{index:02d}"
-    nf = load(230)
+    nf = load(int(h * 0.213))
     nw = d.textlength(num, font=nf)
-    d.text(((W - nw) / 2, SAFE_TOP), num, font=nf, fill=YEL)
+    d.text(((w - nw) / 2, int(h * 0.278)), num, font=nf, fill=YEL)
 
-    # The filename to drop in, so replacing the placeholder takes no guessing.
-    d.line([(W / 2 - 130, 640), (W / 2 + 130, 640)], fill=(70, 70, 74), width=2)
-    ff = load(30)
+    rule_y = int(h * 0.593)
+    d.line([(w / 2 - int(w * 0.068), rule_y), (w / 2 + int(w * 0.068), rule_y)],
+           fill=(70, 70, 74), width=2)
+    ff = load(int(h * 0.028))
     fw = d.textlength(filename, font=ff)
-    d.text(((W - fw) / 2, 668), filename, font=ff, fill=GRY)
+    d.text(((w - fw) / 2, int(h * 0.618)), filename, font=ff, fill=GRY)
 
     os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
     img.save(path, quality=92)
@@ -95,10 +102,16 @@ def main():
                     help="replace stills that already exist (default: only fill gaps)")
     ap.add_argument("--dry-run", action="store_true",
                     help="list what would be created without writing anything")
+    ap.add_argument("--size", default="1920x1080",
+                    help="WxH of the generated still; use 1080x1920 for vertical shorts")
     a = ap.parse_args()
 
     if not os.path.isfile(a.spec):
         sys.exit(f"spec not found: {a.spec}")
+    try:
+        out_w, out_h = (int(x) for x in a.size.lower().split("x"))
+    except ValueError:
+        sys.exit(f"--size must look like 1920x1080 or 1080x1920, got {a.size!r}")
     with open(a.spec, encoding="utf-8") as f:
         spec = json.load(f)
 
@@ -127,14 +140,14 @@ def main():
             made.append(path)
             print(f"  [{i:>2}/{total}] would create {os.path.relpath(path)}")
             continue
-        draw_placeholder(path, i, total, filename)
+        draw_placeholder(path, i, total, filename, out_w, out_h)
         made.append(path)
         print(f"  [{i:>2}/{total}] wrote   {os.path.relpath(path)}")
 
     verb = "would create" if a.dry_run else "created"
     print(f"\nOK  {verb} {len(made)}, kept {kept} existing, skipped {skipped}")
     if made and not a.dry_run:
-        print(f"    {W}x{H} branded stills, one per section")
+        print(f"    {out_w}x{out_h} branded stills, one per section")
         print("    now: python3 tools/build_longform.py --spec "
               f"{a.spec} --audio ... --chunks ... --out ... --ken-burns")
     elif kept and not a.dry_run:
