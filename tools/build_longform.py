@@ -123,13 +123,17 @@ def resolve_still(asset, assets_dir):
     return p if os.path.isfile(p) else None
 
 
-def section_shots(asset, assets_dir):
+def section_shots(sec, assets_dir):
     """Every still belonging to one section.
 
     Two ways to give a section more than one picture: list them explicitly in the spec
     (`"assets": [...]`), or simply name the extra files with the same numeric prefix -
     `01_the_peak_a.jpg`, `01_the_peak_b.jpg` - and they are picked up automatically.
     """
+    listed = sec.get("assets")
+    if isinstance(listed, (list, tuple)) and listed:
+        return [p for p in (resolve_still(a, assets_dir) for a in listed) if p]
+    asset = sec.get("asset") or ""
     if not asset:
         return []
     p = resolve_still(asset, assets_dir)
@@ -288,7 +292,7 @@ def main():
         end = ranges[i + 1]["start"] if i + 1 < len(ranges) else total
         durations.append(max(0.5, end - r["start"]))
 
-    shots_per_section = [section_shots(s.get("asset"), a.assets) for s in secs]
+    shots_per_section = [section_shots(s, a.assets) for s in secs]
     with_art = sum(1 for sh in shots_per_section if sh)
     if shots_per_section:
         extra = sum(max(0, len(sh) - 1) for sh in shots_per_section)

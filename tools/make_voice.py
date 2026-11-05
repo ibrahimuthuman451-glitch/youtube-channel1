@@ -179,6 +179,7 @@ def sections_from_spec(spec):
                 "title": s.get("title") or s.get("id") or f"Section {i}",
                 "text": text,
                 "asset": s.get("asset") or "",
+                "assets": s.get("assets") or [],
             })
         return out
     text = (spec.get("script") or "").strip()
