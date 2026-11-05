@@ -224,11 +224,21 @@ Two structural notes the timeline makes obvious:
 
 ## YouTube metadata
 
-**Title options** (front-load the tension, not the noun):
+**Title (chosen):**
 
-1. How Nokia Lost Everything — The Real Reason (Not the iPhone)
-2. Nokia Was Worth $150 Billion. Six Years Later It Sold Its Phone Business.
-3. The Company That Was Right for 14 Years and Couldn't Hear the Truth
+```
+How Nokia Lost Everything (The Real Story)
+```
+
+43 characters. "(The Real Story)" promises a narrative correction rather than an
+encyclopedia recap, which is what the script actually delivers — the thesis is that the
+collapse was cultural, not that the iPhone arrived.
+
+Runners-up, if you want to A/B later:
+
+1. Nokia Was Worth $150 Billion. Six Years Later It Sold Its Phone Business.
+2. The Company That Was Right for 14 Years and Couldn't Hear the Truth
+3. How Nokia Lost Everything — The Real Reason (Not the iPhone)
 
 **Description** — paste as-is; the timestamp list becomes chapters on the progress bar:
 
@@ -259,12 +269,49 @@ and contemporaneous reporting on the February 2011 internal memo.
 **Thumbnail:** reuse `00_Official_YouTube_Thumbnail_Nokia_Fell_Fast.jpg`. One text idea
 that pairs with the title: `$150B → SOLD`.
 
-**Pinned comment:** the honest framing, which is also the best-performing comment:
+**Pinned comment** — use a question. A question earns replies, and replies are the early
+engagement signal that actually matters:
+
+```text
+Was Elop's "Burning Platform" memo the real cause — or was Symbian already doomed before
+he arrived? I go back and forth on this one.
+```
+
+Lower-effort alternative, if you prefer a statement to a question (fewer replies, but it
+frames the thesis):
 
 ```text
 Nokia didn't lose to a better phone. It lost a reporting channel. The phones were late
 because the bad news was late.
 ```
+
+**Pinning is manual.** The YouTube Data API can create the comment
+(`YOUTUBE_POST_COMMENT`) but pinning is not exposed — no tool exists for it, so that one
+click is yours in Studio.
+
+## Thumbnail legibility — measured, not assumed
+
+Tested at YouTube's real display sizes rather than eyeballed at 1280x720:
+
+- **Contrast: 16.19:1** between the yellow lettering (avg RGB 252,241,8) and the dark
+  background (14,15,17). WCAG AA asks 3.0:1 for large text, so contrast is not the issue.
+- **At 168x94** (mobile list), "NOKIA" survives clearly; "FELL FAST" is right at the edge
+  of legibility, and the sparks/particle background competes with it.
+
+If you want the strongest small-size read, the generated `$150B → SOLD` card wins — solid
+field, one huge number, nothing behind the text. If you keep the FELL FAST art, enlarge
+the second line and darken the left third so the type sits on something flat.
+
+## Shorts flywheel — mind the order
+
+Uploading the two Shorts and linking this long-form as their **Related video** is the
+right move, but the sequencing matters:
+
+- The Related-video picker offers **your own videos**, and a scheduled-but-unpublished
+  video may not be selectable.
+- So publish the long-form first (6 PM today), confirm it's live, **then** upload the
+  Shorts and attach it. Doing it the other way round risks the option being unavailable
+  and the Shorts going out unlinked.
 
 
 ---
