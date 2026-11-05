@@ -302,16 +302,30 @@ If you want the strongest small-size read, the generated `$150B → SOLD` card w
 field, one huge number, nothing behind the text. If you keep the FELL FAST art, enlarge
 the second line and darken the left third so the type sits on something flat.
 
-## Shorts flywheel — mind the order
+## Shorts: moved to Video 2
 
-Uploading the two Shorts and linking this long-form as their **Related video** is the
-right move, but the sequencing matters:
+**Plan changed on 5 Nov.** The Nokia shorts are parked — they will not run this week.
+Shorts now come from the *next* long-form and post on **Thursdays**.
 
-- The Related-video picker offers **your own videos**, and a scheduled-but-unpublished
-  video may not be selectable.
-- So publish the long-form first (6 PM today), confirm it's live, **then** upload the
-  Shorts and attach it. Doing it the other way round risks the option being unavailable
-  and the Shorts going out unlinked.
+Current shape of the schedule:
+
+| Slot | Date | What |
+|---|---|---|
+| Thu 6 PM | 5 Nov 2026 | Video 1 long-form (this one) |
+| — | 12 Nov 2026 | Video 2, topic TBC (the teaser art suggests Blockbuster vs Netflix) |
+| Thu | weekly | Shorts cut from Video 2, not Video 1 |
+
+The two Nokia Shorts that already exist (`short3_one_in_two_REALART.mp4`,
+`short1_touchscreen_first_REALART.mp4`) are still valid and still say PLACEHOLDER-free
+real art — just hold them. They can run any time later, or be re-cut with the newer
+photos.
+
+**The sequencing rule still applies** whenever you do run a Short against a long-form:
+
+- The Related-video picker only offers **your own published videos**, so a
+  scheduled-but-unpublished long-form generally is not selectable.
+- Publish the long-form first, confirm it's live, **then** upload the Short and attach it.
+
 
 
 ---
