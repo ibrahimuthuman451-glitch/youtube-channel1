@@ -159,7 +159,16 @@ def prepare_frame(src, dst, mode="auto"):
 
 
 def run_ff(args):
-    subprocess.run([FF, "-y", "-hide_banner", "-loglevel", "error"] + args, check=True)
+    """Run FFmpeg, turning its stderr into a readable failure instead of a traceback."""
+    try:
+        subprocess.run([FF, "-y", "-hide_banner", "-loglevel", "error"] + args,
+                       check=True, capture_output=True, text=True)
+    except subprocess.CalledProcessError as e:
+        tail = [ln for ln in (e.stderr or "").strip().splitlines() if ln.strip()][-3:]
+        detail = " | ".join(tail) if tail else "no stderr"
+        raise SystemExit(f"ffmpeg failed (exit {e.returncode}): {detail}") from e
+    except FileNotFoundError as e:
+        raise SystemExit(f"ffmpeg not found: {FF}") from e
 
 
 def enhance_voice(src, dst):
