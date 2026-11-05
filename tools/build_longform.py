@@ -159,6 +159,31 @@ def build_scrim(path, top_opacity, top_h, bot_opacity, bot_h):
     return path
 
 
+def ken_burns_chain(idx, frames, zoom_max):
+    """A slow push-in, one frame per input frame, travelling 1.0x -> zoom_max.
+
+    Two deliberate differences from the usual snippet:
+
+    * the per-frame step is derived from *this section's* frame count, so a 30s section
+      and a 63s section both travel the full zoom across their own length. A fixed
+      `zoom+0.0005` reaches the ceiling after 300 frames (10s at 30fps) and then sits
+      still for the remaining 53s.
+    * it emits exactly one output frame per input frame (`d=1`). The caller loops each
+      still with `-loop 1 -t`, so pairing that with `d=<total frames>` would duplicate
+      every frame by the section length.
+
+    It also takes the *original* still, not the pre-cropped 1080p one, so the 1.5x
+    upscale has real pixels to work with.
+    """
+    up_w, up_h = W * 3 // 2, H * 3 // 2
+    step = (zoom_max - 1.0) / max(1, frames)
+    return (f"[{idx}:v]scale={up_w}:{up_h}:force_original_aspect_ratio=increase,"
+            f"crop={up_w}:{up_h},"
+            f"zoompan=z='min(1+{step:.8f}*on,{zoom_max})':d=1:"
+            f"x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':"
+            f"s={W}x{H}:fps={FPS},format=yuv420p,setsar=1[k{idx}]")
+
+
 def main():
     sys.stdout.reconfigure(line_buffering=True)
     ap = argparse.ArgumentParser()
@@ -178,6 +203,11 @@ def main():
                     help="opacity of the band behind the section title, so it stays "
                          "legible over a bright photo (0 disables)")
     ap.add_argument("--title-scrim-height", type=int, default=190)
+    ap.add_argument("--ken-burns", action="store_true",
+                    help="slow push-in on each section (1.0x -> --zoom-max) instead of "
+                         "a held still; slower to encode")
+    ap.add_argument("--zoom-max", type=float, default=1.15,
+                    help="final zoom for --ken-burns")
     a = ap.parse_args()
 
     for p in (a.spec, a.audio, a.chunks):
@@ -231,19 +261,28 @@ def main():
            "-movflags", "+faststart", "-shortest", a.out]
 
     if found:
-        # One looped input per section, each held for its measured duration, then
-        # concatenated. Text deliberately stays in the ASS layer: drawtext would have to
-        # escape every apostrophe and colon in the prose (and this script is full of
-        # them), while the ASS pass already wraps and styles correctly.
-        normalized = [normalize_still(s, os.path.join(work, f"sec{i:02d}.jpg"))
-                      if s else bg for i, s in enumerate(stills)]
+        # Ken Burns needs the untouched still for zoom headroom; the static path
+        # pre-crops once to 1080p.
+        if a.ken_burns:
+            paths = [s if s else bg for s in stills]
+        else:
+            paths = [normalize_still(s, os.path.join(work, f"sec{i:02d}.jpg"))
+                     if s else bg for i, s in enumerate(stills)]
+
         inputs = []
-        for path, dur in zip(normalized, durations):
+        for path, dur in zip(paths, durations):
             inputs += ["-loop", "1", "-framerate", str(FPS),
                        "-t", f"{dur:.3f}", "-i", path]
 
-        n = len(normalized)
-        chains = "".join(f"[{i}:v]format=yuv420p,setsar=1[k{i}];" for i in range(n))
+        n = len(paths)
+        if a.ken_burns:
+            chains = "".join(
+                ken_burns_chain(i, max(1, int(round(durations[i] * FPS))), a.zoom_max) + ";"
+                for i in range(n))
+            mode = f"ken burns 1.0x->{a.zoom_max}x"
+        else:
+            chains = "".join(f"[{i}:v]format=yuv420p,setsar=1[k{i}];" for i in range(n))
+            mode = "static stills"
         join = "".join(f"[k{i}]" for i in range(n)) + f"concat=n={n}:v=1:a=0[bgv];"
 
         # Gradient scrim overlaid as its own looped input: hard drawbox bands looked
@@ -261,7 +300,8 @@ def main():
               f"[b1][s1]overlay=0:0:format=auto,format=yuv420p[sc];"
               f"[sc]subtitles='{sub_arg}'[v]")
 
-        print(f"  encoding 1920x1080 with {found}/{n} stills ... (several minutes)")
+        print(f"  encoding 1920x1080 with {found}/{n} stills, {mode} ... "
+              f"(several minutes)")
         run_ff(inputs + ["-filter_complex", fc,
                          "-map", "[v]", "-map", f"{n + 1}:a"] + enc)
     else:

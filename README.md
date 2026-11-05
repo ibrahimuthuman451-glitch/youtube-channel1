@@ -34,6 +34,7 @@ AZURE_SPEECH_KEY=... AZURE_SPEECH_REGION=eastus \
 
 # 1080p master with section titles and burned captions
 # (drops in any stills found under assets/, card fallback for the rest)
+# add --ken-burns for a slow push-in on each section
 python3 tools/build_longform.py --spec specs/video1.json \
   --audio out/perform/video-1-how-nokia-lost-everything/en-us-christopherneural.mp3 \
   --chunks out/perform/video-1-how-nokia-lost-everything/en-us-christopherneural.chunks.json \

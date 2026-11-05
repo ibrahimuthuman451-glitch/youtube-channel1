@@ -342,10 +342,11 @@ Stating the gaps plainly, so nothing here is mistaken for finished video:
 - **No music or SFX.** Neither is licensed here, and a 9-minute bed needs a real licence.
 - **Five of the twelve stills are unsourced.** Rows flagged **Needs sourcing** in the
   asset manifest above. The other seven exist in the Drive folder.
-- **The cut has no motion.** `tools/build_longform.py` now composites the stills (one per
-  section, cover-cropped to 1080p, with a gradient scrim behind the title and captions),
-  and falls back to a card for any still that is missing. What it does not do is move the
-  image: no Ken Burns push, no transitions. Add those once the pictures are final.
+- **The cut has no motion by default.** `tools/build_longform.py` composites the stills
+  (one per section, cover-cropped to 1080p, with a gradient scrim behind the title and
+  captions) and falls back to a card for any still that is missing. Add `--ken-burns` for
+  a duration-aware slow push-in (1.0x → 1.15x across each section's own length). Still no
+  crossfades between sections.
 - **No end screen or subscribe animation.** Standard 20-second outro not written, because
   the close is a question and padding after it costs retention.
 
