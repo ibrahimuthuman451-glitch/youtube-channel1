@@ -172,6 +172,23 @@ def main():
         def speak(text, rate_str, path):
             return with_retry(lambda: synth_edge(text, a.voice, rate_str, path), "tts")
 
+    # The output name is <slugified voice>.mp3 no matter which engine produced it, so an
+    # --engine azure run overwrites an edge run in place. Say so before it happens rather
+    # than leaving a silently swapped file (and a chunks.json whose provenance flips).
+    prev_chunks = os.path.join(dest, f"{slugify(a.voice)}.chunks.json")
+    if os.path.isfile(prev_chunks):
+        prev_engine = "unknown"
+        try:
+            with open(prev_chunks, encoding="utf-8") as f:
+                prev_engine = json.load(f).get("engine") or "unknown (pre-engine field)"
+        except (OSError, ValueError):
+            pass
+        if prev_engine != engine:
+            print(f"  NOTE: {os.path.relpath(dest)}/ already holds a render from "
+                  f"{prev_engine};")
+            print(f"        this run ({engine}) overwrites it. To keep both, re-run with "
+                  f"--outdir out/perform-{engine}.")
+
     # Calibrate: total budget minus the silence we are about to insert = speech budget.
     if a.rate is not None:
         rate_val = float(a.rate.strip().rstrip("%"))
