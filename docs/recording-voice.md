@@ -136,6 +136,19 @@ None of it is a single flag on the free endpoint, so here is what it actually do
 
 It speaks the script and nothing else — no title, no intro, no sign-off.
 
+**Both engines are supported on this path**, which matters because this is the render the
+master is built from. Drafts can stay on the free default; the publish render uses the
+licensed endpoint with the same voice and rate:
+
+```bash
+AZURE_SPEECH_KEY=... AZURE_SPEECH_REGION=eastus \
+  python3 tools/perform_script.py --spec specs/video1.json --engine azure
+```
+
+Calibration runs on whichever engine you selected, so an Azure render cannot inherit an
+edge-tts rate. Throttles and dropped connections retry with backoff (a long render makes
+100+ endpoint calls); a bad key fails immediately instead of burning three attempts.
+
 Expect one side effect: isolated sentences read faster than flowing narration, so a
 150 wpm overall target pushes `--rate` to roughly -18% for Christopher — a slower, more
 forensic delivery than his default. That is the price of a hard pause at every period.

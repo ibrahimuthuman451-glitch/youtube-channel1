@@ -25,9 +25,13 @@ Nothing is spoken except the script: no title, no intro, no sign-off.
   python3 tools/perform_script.py --spec specs/video1.json --voice en-US-RogerNeural
   python3 tools/perform_script.py --spec specs/video1.json --wpm 150 --pause 0.5
   python3 tools/perform_script.py --spec specs/video1.json --rate "-5%"   # skip calibration
+
+Publishing path: pass `--engine azure` with AZURE_SPEECH_KEY and AZURE_SPEECH_REGION set.
+Same voices, licensed for monetised use (~12 cents for a script this size). Drafts can
+stay on the free default engine. A bad key fails fast; throttles and dropped connections
+are retried with backoff rather than discarding a 100-call render.
 """
 import argparse
-import asyncio
 import json
 import os
 import re
@@ -37,7 +41,18 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
-from make_voice import concat, make_silence, mmss, sections_from_spec, slugify, short  # noqa: E402
+from make_voice import (  # noqa: E402
+    concat,
+    make_silence,
+    mmss,
+    require_azure_credentials,
+    sections_from_spec,
+    slugify,
+    short,
+    synth_azure,
+    synth_edge,
+    with_retry,
+)
 
 # Financial figures and dates. Digits cover years and percentages; the words cover the
 # spelled-out amounts the TTS needs anyway ("five point four billion euros").
@@ -74,20 +89,23 @@ def trim_silence(src, dst, pad=PAD, noise="-45dB", min_sil=0.10):
                     "-c:a", "libmp3lame", "-b:a", "192k", dst])
 
 
-def measure_wpm(chunks, voice, workdir):
+def measure_wpm(chunks, speak, workdir):
     """Speak a few sentences exactly the way the render will, and report words per minute.
 
     Measuring one joined paragraph under-reads badly: TTS flows through sentence
     boundaries faster than it speaks a sentence in isolation, and the join includes
     padding that the render trims. Both effects push the computed rate too high, so
     this measures the production path chunk by chunk instead.
+
+    `speak(text, rate, path)` is injected so calibration uses the same engine as the
+    render; calibrating on edge-tts and rendering on Azure would mis-set the rate.
     """
     total_words = 0
     total_dur = 0.0
     for i, chunk in enumerate(chunks):
         probe = os.path.join(workdir, f"_cal{i}.mp3")
         trimmed = os.path.join(workdir, f"_cal{i}_trim.mp3")
-        asyncio.run(short().synth(chunk, voice, "+0%", probe))
+        speak(chunk, "+0%", probe)
         trim_silence(probe, trimmed)
         total_words += len(chunk.split())
         total_dur += short().duration_of(trimmed)
@@ -112,6 +130,9 @@ def main():
     ap.add_argument("--pause", type=float, default=0.5,
                     help="silence at every period and em-dash, seconds")
     ap.add_argument("--rate", help="override calibration, e.g. -5%%")
+    ap.add_argument("--engine", default="edge", choices=["edge", "azure"],
+                    help="edge = free unofficial endpoint (drafts); azure = licensed, "
+                         "paid, same voices (publishing)")
     ap.add_argument("--figure-slower", type=float, default=4.0,
                     help="extra percentage points of slowdown on sentences with figures/dates")
     ap.add_argument("--outdir", default="out/perform")
@@ -137,6 +158,20 @@ def main():
     dest = os.path.join(a.outdir, slugify(name))
     os.makedirs(dest, exist_ok=True)
 
+    # One call shape for both engines: text, rate, destination. Calibration and the
+    # render both go through it, so the two can never disagree about the engine.
+    engine = a.engine
+    if engine == "azure":
+        az_key, az_region = require_azure_credentials()
+
+        def speak(text, rate_str, path):
+            return with_retry(
+                lambda: synth_azure(text, a.voice, rate_str, path, az_key, az_region),
+                "tts")
+    else:
+        def speak(text, rate_str, path):
+            return with_retry(lambda: synth_edge(text, a.voice, rate_str, path), "tts")
+
     # Calibrate: total budget minus the silence we are about to insert = speech budget.
     if a.rate is not None:
         rate_val = float(a.rate.strip().rstrip("%"))
@@ -152,7 +187,7 @@ def main():
             seen += len(c.split())
             if seen >= 150:
                 break
-        measured = measure_wpm(cal_chunks, a.voice, dest)
+        measured = measure_wpm(cal_chunks, speak, dest)
         if a.wpm_basis == "overall":
             budget = words / a.wpm * 60.0 - silence_s
             if budget <= 0:
@@ -164,8 +199,8 @@ def main():
         rate_val = max(-40.0, min(60.0, (needed / measured - 1.0) * 100.0))
 
     print(f"{name}")
-    print(f"  voice {a.voice} | {words} words | {len(chunks)} chunks | "
-          f"{pauses} x {a.pause}s pauses")
+    print(f"  voice {a.voice} | engine {engine} | {words} words | "
+          f"{len(chunks)} chunks | {pauses} x {a.pause}s pauses")
     if measured:
         print(f"  measured {measured:.1f} wpm at +0% -> rate {rate_val:+.1f}% "
               f"to land {a.wpm:.0f} wpm ({a.wpm_basis})")
@@ -177,7 +212,7 @@ def main():
         slow = bool(FIGURE.search(chunk))
         r = rate_val - a.figure_slower if (slow and a.figure_slower) else rate_val
         mp3 = os.path.join(tmp, f"c{i:04d}.mp3")
-        asyncio.run(short().synth(chunk, a.voice, f"{r:+.0f}%", mp3))
+        speak(chunk, f"{r:+.0f}%", mp3)
         trimmed = os.path.join(tmp, f"t{i:04d}.mp3")
         trim_silence(mp3, trimmed)
         os.remove(mp3)
@@ -204,6 +239,7 @@ def main():
     with open(os.path.join(dest, f"{slugify(a.voice)}.chunks.json"), "w",
               encoding="utf-8") as f:
         json.dump({"spec": a.spec, "voice": a.voice, "rate": round(rate_val, 1),
+                   "engine": engine,
                    "target_wpm": a.wpm, "wpm_basis": a.wpm_basis, "pause": a.pause,
                    "duration": round(total, 3), "words": words,
                    "overall_wpm": round(words / total * 60.0, 2),

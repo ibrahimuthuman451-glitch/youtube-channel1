@@ -28,6 +28,10 @@ python3 tools/make_voice.py --spec specs/video1.json
 # one continuous take with 0.5s pauses at every sentence, paced to 150 wpm
 python3 tools/perform_script.py --spec specs/video1.json
 
+# same take on the licensed engine (same voices, ~11c for this script)
+AZURE_SPEECH_KEY=... AZURE_SPEECH_REGION=eastus \
+  python3 tools/perform_script.py --spec specs/video1.json --engine azure
+
 # 1080p master with section titles and burned captions
 python3 tools/build_longform.py --spec specs/video1.json \
   --audio out/perform/video-1-how-nokia-lost-everything/en-us-christopherneural.mp3 \

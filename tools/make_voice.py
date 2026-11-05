@@ -40,6 +40,7 @@ import json
 import os
 import re
 import sys
+import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
@@ -62,6 +63,59 @@ def short():
 
 AZURE_URL = "https://{region}.tts.speech.microsoft.com/cognitiveservices/v1"
 AZURE_FMT = "audio-24khz-48kbitrate-mono-mp3"
+
+
+class TTSRetryable(Exception):
+    """A failure worth retrying: a throttle, a 5xx, or a dropped connection.
+
+    Deliberately distinct from SystemExit. A bad key or a malformed voice name will
+    never fix itself, so those still exit immediately instead of burning 3 attempts on
+    a 9-minute render.
+    """
+
+
+def with_retry(fn, what, attempts=3, base_delay=1.5):
+    """Run a network call, retrying transient failures with exponential backoff.
+
+    A long render makes 100+ endpoint calls; without this, one dropped connection an
+    hour in discards the whole run. SystemExit (bad credentials, bad SSML) is not an
+    Exception, so it propagates without being retried.
+    """
+    last = None
+    for i in range(attempts):
+        try:
+            return fn()
+        except Exception as e:  # noqa: BLE001 - endpoint libraries raise a wide variety
+            last = e
+            if i == attempts - 1:
+                break
+            delay = base_delay * (2 ** i)
+            print(f"    retry {i + 1}/{attempts - 1} in {delay:.1f}s "
+                  f"({type(e).__name__}: {str(e)[:90]})")
+            time.sleep(delay)
+    raise SystemExit(f"{what} failed after {attempts} attempts: "
+                     f"{type(last).__name__}: {last}")
+
+
+def synth_edge(text, voice, rate, mp3_path):
+    """Free edge-tts path, wrapped so both tools share one call shape."""
+    return asyncio.run(short().synth(text, voice, rate, mp3_path))
+
+
+def azure_credentials():
+    """Read Azure config from the environment. Never from argv, never hardcoded."""
+    key = os.environ.get("AZURE_SPEECH_KEY", "")
+    region = os.environ.get("AZURE_SPEECH_REGION", "")
+    return key, region
+
+
+def require_azure_credentials():
+    key, region = azure_credentials()
+    if not (key and region):
+        sys.exit("--engine azure needs AZURE_SPEECH_KEY and AZURE_SPEECH_REGION in the "
+                 "environment, e.g.\n"
+                 "  export AZURE_SPEECH_KEY=...  AZURE_SPEECH_REGION=eastus")
+    return key, region
 
 
 def synth_azure(text, voice, rate, mp3_path, key, region):
@@ -92,11 +146,18 @@ def synth_azure(text, voice, rate, mp3_path, key, region):
             audio = resp.read()
     except urllib.error.HTTPError as e:
         detail = e.read().decode("utf-8", "replace")[:300]
-        raise SystemExit(f"azure tts {e.code} for {voice}: {detail}")
+        if e.code in (408, 429) or 500 <= e.code < 600:
+            raise TTSRetryable(f"azure tts {e.code}: {detail}") from e
+        # 401/403 bad key, 400 bad SSML, 404 bad region: retrying cannot help.
+        raise SystemExit(f"azure tts {e.code} for {voice}: {detail}") from e
+    except urllib.error.URLError as e:
+        # DNS, TLS, proxy, timeout: the class of failure that retries actually fix.
+        raise TTSRetryable(f"azure tts unreachable ({region}): {e.reason}") from e
     if len(audio) < 512:
-        raise SystemExit(f"azure tts returned no audio for {voice}")
+        raise TTSRetryable(f"azure tts returned no audio for {voice}")
     with open(mp3_path, "wb") as f:
         f.write(audio)
+    return mp3_path
 
 
 def slugify(text):
@@ -210,12 +271,9 @@ def main():
     voice = a.voice or spec.get("voice") or DEFAULT_VOICE
     rate = a.rate if a.rate is not None else (spec.get("rate") or "+0%")
     engine = a.engine
-    az_key = os.environ.get("AZURE_SPEECH_KEY", "")
-    az_region = os.environ.get("AZURE_SPEECH_REGION", "")
-    if engine == "azure" and not (az_key and az_region):
-        sys.exit("--engine azure needs AZURE_SPEECH_KEY and AZURE_SPEECH_REGION in the "
-                 "environment, e.g.\n"
-                 "  export AZURE_SPEECH_KEY=...  AZURE_SPEECH_REGION=eastus")
+    az_key = az_region = ""
+    if engine == "azure":
+        az_key, az_region = require_azure_credentials()
     name = spec.get("name") or os.path.splitext(os.path.basename(a.spec))[0]
     slug = slugify(name)
     total_words = sum(len(s["text"].split()) for s in sections)
@@ -241,10 +299,12 @@ def main():
         stem = f"{i:02d}_{s['id']}"
         mp3 = os.path.join(dest, stem + ".mp3")
         if engine == "azure":
-            synth_azure(s["text"], voice, rate, mp3, az_key, az_region)
+            with_retry(lambda: synth_azure(s["text"], voice, rate, mp3, az_key, az_region),
+                       f"section {s['id']}")
             words = short().timings_from_audio(mp3, s["text"])
         else:
-            words = asyncio.run(short().synth(s["text"], voice, rate, mp3))
+            words = with_retry(lambda: synth_edge(s["text"], voice, rate, mp3),
+                               f"section {s['id']}")
         if not words:
             sys.exit(f"{s['id']}: no word timings produced - check network or input")
         with open(os.path.join(dest, stem + ".words.json"), "w", encoding="utf-8") as f:
