@@ -1,0 +1,53 @@
+{
+  "name": "Video 1b - Nokia 3 Minute Cut",
+  "format": "16:9 mid-form",
+  "target_runtime": "3-4 minutes",
+  "voice": "en-US-ChristopherNeural",
+  "rate": "+0%",
+  "source_doc": "content/video1b-nokia-3min.md",
+  "notes": "Condensed from Video 1 after it measured 15.4% average view duration. Curiosity chain: every section ends by opening the next question, and the answer to the hook's promise is withheld until the memo.",
+  "sections": [
+    {
+      "id": "hook",
+      "title": "Not the iPhone",
+      "asset": "assets/video1/00_hook_one_in_two.jpg",
+      "text": "Nokia built a touchscreen phone before Apple did. And that is not why it lost. In 2007, almost every second smartphone sold on earth was a Nokia. Six years later it sold the entire phone business and walked away. The reason was not the hardware, and it was not the iPhone. It was a memo, and the way that memo leaked did more damage than the crisis it described."
+    },
+    {
+      "id": "peak",
+      "title": "The peak",
+      "asset": "assets/video1/01_the_peak_nokia_1100_era.jpg",
+      "text": "Hold the numbers in mind. In 2007, Nokia was worth roughly a hundred and fifty billion dollars. Nearly four in ten phones sold worldwide carried its logo, and its handsets were in the pockets of people who had never owned a phone before. This was not a company in decline that got unlucky. This was the most successful phone company in history, standing at the exact moment it stopped being one."
+    },
+    {
+      "id": "trap",
+      "title": "The trap",
+      "asset": "assets/video1/03_the_iphone_arrives_2007.jpg",
+      "text": "Here is what made it vulnerable. Nokia's phones ran Symbian, an operating system built for buttons and tiny screens. That was a strength for a decade. Then software stopped being plumbing and became the product itself. Inside Nokia, teams fought each other instead of Apple: Symbian, then Maemo, then MeeGo, each announced with enthusiasm, each replaced before it was finished. Developers did the arithmetic and left. The app gap was not a design failure. It was a trust failure. So Nokia hired an outsider to say out loud what nobody inside was allowed to say."
+    },
+    {
+      "id": "memo",
+      "title": "The memo",
+      "asset": "assets/video1/07_burning_elop_memo.jpg",
+      "text": "In February 2011, chief executive Stephen Elop sent his staff a memo. He compared Nokia to a man standing on a burning oil platform in the North Sea, choosing between burning alive and jumping into freezing water. It was honest and it was brutal, and it did what internal honesty usually does. It leaked. Then Nokia abandoned its own software for Microsoft's Windows Phone. You would expect that to be the low point. It was not. The announcement did the damage by itself. Customers three months from an upgrade heard one message clearly: the phone you are about to buy is already a dead end. Symbian sales fell off a cliff."
+    },
+    {
+      "id": "fall",
+      "title": "The fall",
+      "asset": "assets/video1/08_the_end_microsoft_acquisition_lumia.jpg",
+      "text": "By 2012, Samsung had taken the top spot, ending a fourteen year run. In 2013, Microsoft bought the phone business for about five point four billion euros. In 2015, it wrote down seven point six billion dollars and cut seven thousand eight hundred jobs from the division. Read that again. Microsoft lost more on Nokia than Nokia made selling it."
+    },
+    {
+      "id": "twist",
+      "title": "What survived",
+      "asset": "assets/video1/09_payoff_nokia_5g_telecom_infrastructure.jpg",
+      "text": "But here is the part the headline misses. Nokia is not dead. It kept the piece that mattered: network equipment. Today it sells the 5G infrastructure your phone actually runs on, and the brand still appears on handsets licensed to someone else. What ended was not Nokia. It was Nokia's phones."
+    },
+    {
+      "id": "close",
+      "title": "The question",
+      "asset": "assets/video1/10_success_is_a_filter.jpg",
+      "text": "Which leaves the uncomfortable part. Nokia did not fail because it was stupid. It was right for fourteen years, and being right for that long is what made it deaf. So it is worth asking: what are you currently winning at, so convincingly, that you would never hear the person telling you it is over?"
+    }
+  ]
+}
