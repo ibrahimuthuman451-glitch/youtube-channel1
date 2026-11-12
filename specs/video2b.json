@@ -1,0 +1,59 @@
+{
+  "name": "Video 2b - Blockbuster 3 Minute Cut",
+  "format": "16:9 mid-form",
+  "target_runtime": "3-4 minutes",
+  "voice": "en-US-ChristopherNeural",
+  "rate": "+0%",
+  "source_doc": "content/video2b-blockbuster-3min.md",
+  "notes": "Condensed from Video 2 (1,138 words / 8:07) using the same curiosity chain as Video 1b: each section opens the next question, and the hook's promise is not paid off until the board fires the CEO.",
+  "sections": [
+    {
+      "id": "hook",
+      "title": "The offer",
+      "asset": "assets/video2/01_hook_store_wall.jpg",
+      "text": "In the year 2000, Netflix offered to sell itself to Blockbuster for fifty million dollars. Blockbuster said no. That is the version you have heard. Here is the version almost nobody tells: Blockbuster then built its own online rival, ended late fees, and it worked. It was growing into the millions of subscribers. And it still died. So the question is not why Blockbuster missed the internet. It is who killed the thing that was working."
+    },
+    {
+      "id": "peak",
+      "title": "The giant",
+      "asset": "assets/video2/02_peak_stores.jpg",
+      "text": "Hold the scale in mind. By 2004, Blockbuster had roughly nine thousand stores, about sixty thousand employees, and around five point nine billion dollars in annual revenue. Fifty million people held a membership card. This was not a business that failed to scale. It was the incumbent, at the peak of its power, with every advantage the market could give, and nine years left to live."
+    },
+    {
+      "id": "engine",
+      "title": "The engine",
+      "asset": "assets/video2/03_late_fees.jpg",
+      "text": "The money came from a due date. Late fees were reported to be worth hundreds of millions of dollars a year, and they were close to pure profit, because the tape was already paid for. So the incentive was never to get the film back. The incentive was to get it back late. Which is why the obvious move, ending the fee, was the one thing the company could not comfortably do. And it is exactly what its new chief executive did."
+    },
+    {
+      "id": "fightback",
+      "title": "It fought back",
+      "asset": "assets/video2/06_blockbuster_online.jpg",
+      "text": "John Antioco launched Blockbuster Online, killed late fees, and competed on Netflix's own terms. It worked. For two years Blockbuster had the customers, the catalogue, the stores and the digital product. This is the pivot most failed companies never reach. Blockbuster reached it. The only thing it still needed was permission to keep losing money for a while."
+    },
+    {
+      "id": "turn",
+      "title": "Then the board",
+      "asset": "assets/video2/08_reversal.jpg",
+      "text": "Ending late fees cost revenue before the subscriptions replaced it. The dip was real, and it was temporary. The board did not see temporary. They saw a chief executive giving away their most profitable line, so in 2007 they replaced him. The new man, Jim Keyes, turned the company back toward the stores. That is the whole story. Blockbuster did not fail to see the future. It funded the future, watched the dip, and fired the person willing to absorb it."
+    },
+    {
+      "id": "collapse",
+      "title": "The collapse",
+      "asset": "assets/video2/09_collapse.jpg",
+      "text": "Bankruptcy came in September 2010. Dish bought the brand out of it in 2011 for about three hundred and twenty million dollars, which is not much more than a single year of the revenue it once had. Stores closed in waves, and the last ones, in Alaska, shut in 2018. There was never a meeting where someone discovered the internet. There were years of defending one line of an income statement."
+    },
+    {
+      "id": "qwikster",
+      "title": "The winner stumbled too",
+      "asset": "assets/video2/05_netflix_mail.jpg",
+      "text": "And the proof that this was never about intelligence: in 2011, Netflix did something just as stupid. It raised prices sharply and announced it was splitting the company in two. Customers revolted, subscribers left, the share price collapsed. Within weeks the chief executive apologised and reversed it. Same mistake, answered in weeks instead of years. The difference was not judgement. Netflix had no nine thousand stores to defend."
+    },
+    {
+      "id": "close",
+      "title": "Your late fee",
+      "asset": "assets/video2/12_close.jpg",
+      "text": "So the lesson is not that Blockbuster was asleep. It is that a profitable habit will defend itself, because the people protecting it are rewarded every quarter, while the people arguing for the change are paid in a currency called later. Every business has a late fee: a line of income that is quietly annoying the customer and paying for everything else. The question is which one you are protecting, and who is allowed to say its name out loud."
+    }
+  ]
+}
