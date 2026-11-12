@@ -1,0 +1,83 @@
+{
+  "name": "Video 2 - Blockbuster vs Netflix",
+  "format": "16:9 long-form",
+  "target_runtime": "8-9 minutes",
+  "voice": "en-US-ChristopherNeural",
+  "rate": "+0%",
+  "source_doc": "content/video2-blockbuster-vs-netflix.md",
+  "notes": "Structured against Video 1's measured retention: hardest number in the first five seconds, no origin backstory before the stakes are set, and a second hook at the midpoint.",
+  "sections": [
+    {
+      "id": "hook",
+      "title": "The offer they refused",
+      "asset": "assets/video2/01_hook_store_wall.jpg",
+      "text": "In the year 2000, Netflix offered to sell itself to Blockbuster for fifty million dollars. Blockbuster's board passed. Blockbuster had nine thousand stores and sixty thousand employees; Netflix was mailing DVDs out of a California office. Twenty years later Netflix was worth hundreds of billions, and Blockbuster's last stores had closed. And here is the part almost every retelling gets wrong: Blockbuster did not ignore the internet. It built the internet business. Then it killed it."
+    },
+    {
+      "id": "peak",
+      "title": "Nine thousand stores",
+      "asset": "assets/video2/02_peak_stores.jpg",
+      "text": "By 2004, Blockbuster was the largest video rental chain on earth. Roughly nine thousand stores, about sixty thousand employees, and around five point nine billion dollars in annual revenue. Fifty million people had a membership card. In towns across America, the Blockbuster on the corner was what renting a film meant. It was not a startup that failed to scale. It was the incumbent, at the absolute peak of its power, holding every advantage the market had to give. That is the first thing to hold onto, because the usual story is a company blindsided by technology. This was not blindness. This was a company that could see the future perfectly, and chose a different quarter."
+    },
+    {
+      "id": "latefees",
+      "title": "The late fee machine",
+      "asset": "assets/video2/03_late_fees.jpg",
+      "text": "To understand why, you have to understand the business model. Renting a film meant a due date, and a due date meant late fees. Those fees were reported to be worth hundreds of millions of dollars a year, and they were close to pure profit, because the film was already paid for. So the incentive was not to get the tape back. The incentive was to get it back late. Netflix's entire pitch was the destruction of that fee. A flat subscription, films by post, no due dates, no penalties. It was not a better version of Blockbuster. It was an argument that Blockbuster's most profitable habit was a tax on its own customers."
+    },
+    {
+      "id": "offer",
+      "title": "Fifty million dollars",
+      "asset": "assets/video2/04_the_offer.jpg",
+      "text": "Which brings us back to that fifty million dollar offer. On paper, declining it looks insane. In the room, it was rational. Netflix was small, it was losing money, and its model was built on mailing physical discs through a postal system that Blockbuster already understood. Buying it would have meant funding a service designed to abolish the fees that were paying for nine thousand stores. The refusal was not stupidity. It was arithmetic, run by people whose salaries depended on the answer. That is a more uncomfortable lesson than missing a trend, and it is the one this story actually teaches."
+    },
+    {
+      "id": "netflix",
+      "title": "The quiet compounding",
+      "asset": "assets/video2/05_netflix_mail.jpg",
+      "text": "What Blockbuster could not see from inside its own numbers was the shape of Netflix's advantage. A subscription earns money whether or not the customer walks into a building. No real estate, no staff per transaction, and a catalogue limited only by a warehouse shelf rather than a display wall. So Netflix could carry the films Blockbuster's stores could never justify stocking, and every month of growth compounded quietly. It was slow, unglamorous, and completely invisible to a company measuring success in foot traffic and late returns. The threat was not the discs. It was the absence of a building."
+    },
+    {
+      "id": "online",
+      "title": "Blockbuster builds it anyway",
+      "asset": "assets/video2/06_blockbuster_online.jpg",
+      "text": "And here is the part that destroys the lazy version of this story. Blockbuster did respond. Chief executive John Antioco launched Blockbuster Online, ended late fees, and started competing on exactly Netflix's terms. It worked. The online service grew into the millions of subscribers, and for a moment Blockbuster had a real digital business with a store network behind it. This is the pivot most failed companies never reach. Blockbuster reached it. It had the customers, the catalogue, the cash flow, and the product. The only thing left was to be allowed to keep going."
+    },
+    {
+      "id": "second_hook",
+      "title": "Then the board acted",
+      "asset": "assets/video2/07_boardroom.jpg",
+      "text": "And that is when the incentive came back for its money. Ending late fees cost revenue before the subscription grew large enough to replace it. The dip was real, and it was temporary. The people who owned the company did not see a temporary dip. They saw a chief executive giving away their most profitable line. So in 2007 the board replaced him."
+    },
+    {
+      "id": "reversal",
+      "title": "The reversal",
+      "asset": "assets/video2/08_reversal.jpg",
+      "text": "The new chief executive, Jim Keyes, did what the board wanted. Strategy turned back toward the stores. The online business was scaled down rather than pushed. Late fee economics were defended rather than dismantled. Read that sequence again, because it is the whole video. Blockbuster did not fail to see the internet coming. It funded the internet business, watched the revenue dip that any real transition requires, and then removed the person who was willing to absorb it. The company chose a quarter over a decade, and it did so with full information, in public, on purpose."
+    },
+    {
+      "id": "collapse",
+      "title": "How fast it went",
+      "asset": "assets/video2/09_collapse.jpg",
+      "text": "The rest is a timeline. Netflix moved to streaming in 2007, the same year Blockbuster changed direction. Blockbuster filed for bankruptcy in September 2010. Dish Network bought the brand out of bankruptcy in 2011 for about three hundred and twenty million dollars, which is a fraction of a single year of the revenue it once had. Stores closed in waves, and the final holdouts in Alaska shut in 2018. Not one of those years was a surprise. There was no moment where the management team opened a report and discovered the internet. There were years of a company defending one line of its income statement."
+    },
+    {
+      "id": "qwikster",
+      "title": "The winner stumbled too",
+      "asset": "assets/video2/10_qwikster.jpg",
+      "text": "Now the part that makes this a lesson rather than a fairy tale. In 2011, Netflix did something remarkably stupid. It raised prices sharply and announced it was splitting the company in two, separating DVDs by post from streaming. Customers revolted. Netflix lost hundreds of thousands of subscribers in a quarter, and the share price collapsed. Then, inside a matter of weeks, the chief executive apologised publicly and reversed the split. That is the same mistake Blockbuster made, answered in weeks instead of years. The difference was not intelligence. Netflix had no nine thousand stores to defend."
+    },
+    {
+      "id": "lesson",
+      "title": "The real lesson",
+      "asset": "assets/video2/11_lesson.jpg",
+      "text": "So the lesson is not that Blockbuster was asleep. It is that a profitable habit will defend itself inside a company, because the people who protect it are rewarded for protecting it every single quarter, while the people arguing for the transition are paid in a currency called later. Netflix's advantage was never the mail. It was that its revenue did not depend on a fee it had to protect. That is the structural difference, and it is invisible on a chart until the moment it is not."
+    },
+    {
+      "id": "close",
+      "title": "Your late fee",
+      "asset": "assets/video2/12_close.jpg",
+      "text": "Which brings the question somewhere uncomfortable. Every business, and every person inside one, has a late fee: a line of income that is profitable, a little annoying to the customer, and quietly paying for everything else. Nobody puts it on a slide, because it is working. The question worth sitting with is not whether Blockbuster should have seen Netflix coming. It clearly did. The question is which fee you are currently protecting, and who in your organisation is allowed to say its name out loud."
+    }
+  ]
+}
