@@ -57,7 +57,9 @@ def main():
         v = int(10 + 20 * (y / H))
         d.line([(0, y), (W, y)], fill=(v, v, v + 3))
 
-    d.text((MARGIN, 60), a.kicker, font=load(170), fill=YEL)
+    # Fit the kicker too: a long word like BLOCKBUSTER overruns the frame at a fixed size.
+    kf, kw = fit_line(d, [(a.kicker, YEL)], W - 2 * MARGIN, start=170, minimum=60)
+    d.text((MARGIN, 60), a.kicker, font=kf, fill=YEL)
     d.line([(MARGIN, 250), (W - MARGIN, 250)], fill=YEL, width=6)
 
     parts = [(a.stat, WHT), ("  \u2192  ", YEL), (a.verdict, YEL)]
